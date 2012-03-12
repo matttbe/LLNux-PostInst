@@ -1,0 +1,912 @@
+#!/bin/bash
+# Script which should help users install / tweak some stuff immediately
+# after installing Ubuntu 11.10 32bit and 64bit.
+#
+#     version 11.10.2
+#
+# The script comes with no warranty. The author is not responsible if
+# your system breaks.
+#
+#####################
+#
+#  Copyright (C) 2010 Alin Andrei, http://www.webupd8.org
+#  Copyright 2011-2012 Matthieu Baerts <matttbe@gmail.com>
+#  
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#
+#####################
+#Credits:
+#based on the idea of: http://czytelnia.ubuntu.pl/index.php/2009/11/03/skrypt-ulatwiajacy-konfiguracje-ubuntu-9-10-karmic-koala/, but Ubuntu Start is a completely re-written script with lots of new features.
+
+# TODO: translations...
+
+
+TRUETYPEPATH="/usr/share/fonts/truetype/"
+ROOT_UID=0
+DIR=$(pwd)
+
+
+#running gconf-tool2 with "sudo" fails to set the options for the current user so this tweak makes it possible to run sudo for gconf-tool2 and change the setting for the current user, not the root user
+ON_USER=$(echo ~ | awk -F'/' '{ print $1 $2 $3 }' | sed 's/home//g')
+export $(grep -v "^#" /home/$ON_USER/.dbus/session-bus/`cat /var/lib/dbus/machine-id`-0)
+if sudo -u $ON_USER test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
+	eval `sudo -u $ON_USER dbus-launch --sh-syntax --exit-with-session`
+fi
+
+DISTRIB=$(grep -e DISTRIB_CODENAME /etc/lsb-release | cut -d= -f2)
+DISTRIBNUM=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -f1)
+DISTRIBNUM2=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -f2)
+
+#
+if test $DISTRIBNUM -ge 11 -a $DISTRIBNUM2 -ge 10; then
+	echo "WARNING: This script has been made for Ubuntu Oneiric! "
+	DISTRIB=oneiric
+fi
+
+#check if the user is running 32 or 64bit
+if [ "oneiric" = "$DISTRIB" ]; then
+	if [ "i686" = `uname -m` ]; then
+		echo "Using `cat /etc/issue.net` x86 (i386) - [ OK ]"
+		arch=i386
+	elif [ "x86_64" = `uname -m` ]; then
+		echo "Using `cat /etc/issue.net` x68_64 (amd64) - [ OK ]"
+		arch=amd64
+	else
+		/usr/bin/zenity --warning --title="$WORD1" --text="$WORD2"
+		echo You are not using `cat /etc/issue.net` 32 or 64bits, exiting
+		exit
+	fi
+else
+	/usr/bin/zenity --warning --title="$WORD1" --text="$WORD3"
+	echo You are not using Ubuntu 11.10 Oneiric Ocelot, exiting
+	exit
+fi
+
+# needs to be run with sudo
+if [ "$UID" -ne "$ROOT_UID" ];
+	then
+	echo ""
+	echo "Vous devez lancer ce script avec les droits de l'administrateur."
+	echo ""
+	echo "Tentative de relancement"
+	echo "Merci d'entrer votre mot de passe (c'est invisible!) "
+	# /usr/bin/gksu "`pwd`/./`basename $0`"
+	sudo "./`basename $0`"
+	echo ""
+	echo "Merci de relancer le script avec les droits root sudo ./`basename $0`"
+	exit
+fi
+
+# check if there are applications running which can interfere with the script
+sleep 1
+for lock in synaptic update-manager software-center apt-get dpkg aptitude
+do
+if ps -U root -u root u | grep $lock | grep -v grep > /dev/null;
+	then
+	echo "Installation won't work. Please close $lock first then try again.";
+	/usr/bin/zenity --warning --title="Erreur" --text="L'installation ne fonctionne pas. Fermez $lock et essayez à nouveau."
+	exit
+fi
+done
+
+function addppakey()
+{
+	if test -f "$DIR/keys.gpg"; then
+		sudo apt-key adv --import "$DIR/keys.gpg"
+	else
+		# Author: Dominic Evans https://launchpad.net/~oldman
+		# License: LGPL v2
+		echo '#!/bin/sh
+		echo "Hit your password (its invisible by security ;) )! "
+		sudo -v
+		echo "Please wait! "
+		for APT in `find /etc/apt/ -name *.list`; do
+			grep -o "^deb http://ppa.launchpad.net/[a-z0-9\-]\+/[a-z0-9\-]\+" $APT | while read ENTRY ; do
+			# work out the referenced user and their ppa
+			USERPPA=`echo $ENTRY | cut -d/ -f4`
+			PPA=`echo $ENTRY | cut -d/ -f5`
+			# some legacy PPAs say "ubuntu" when they really mean "ppa", fix that up
+			if [ "ubuntu" = "$PPA" ]
+			then
+				PPA=ppa
+			fi
+			# scrape the ppa page to get the keyid
+			KEYID=`wget -q --no-check-certificate https://launchpad.net/~$USERPPA/+archive/$PPA -O- | grep -o "1024R/[A-Z0-9]\+" | cut -d/ -f2`
+			sudo apt-key adv --list-keys $KEYID >/dev/null 2>&1
+			if [ $? -ne 0 ]
+			then
+				echo "Grabbing key $KEYID for archive $PPA by ~$USERPPA"
+				sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com:80 $KEYID
+			else
+				echo "Already have key $KEYID for archive $PPA by ~$USERPPA"
+			fi
+			done
+		done
+		sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com:80 46D7E7CF #getdeb key
+		sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com:80 5044912E #dropbox key
+		sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com:80 CFD74EDE # me key' > /home/$ON_USER/ubuntu-keyserver.sh
+		chmod +x /home/$ON_USER/ubuntu-keyserver.sh
+		chown $ON_USER /home/$ON_USER/ubuntu-keyserver.sh
+
+		if [ "$KEYSERVER_FAIL" != "" ]; then
+			/usr/bin/zenity --info --text="Le serveur de clé n'est pas disponible. Merci de lancer le script 'ubuntu-keyserver.sh' disponible dans votre répertoire Home en double cliquant dessus plus tard."
+		else
+			sh /home/$ON_USER/ubuntu-keyserver.sh
+			rm -f /home/$ON_USER/ubuntu-keyserver.sh
+		fi
+	fi
+}
+
+
+
+function addallkey()
+{
+	if test -f "$DIR/keys.gpg"; then
+		sudo apt-key adv --import "$DIR/keys.gpg"
+	else
+		#addkey
+		wget -q http://repository.glx-dock.org/cairo-dock.gpg -O- | sudo apt-key add -
+		wget -q http://fr.packages.medibuntu.org/medibuntu-key.gpg -O- | sudo apt-key add -
+		wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+		addppakey
+	fi
+}
+
+
+#check if the user has an active internet connection
+function testConnection()
+{
+	# ping can be blocked -> wget
+	testconnection=`wget --tries=3 --timeout=15 www.google.com -O /tmp/testinternet &>/dev/null 2>&1`
+	if [ $? -gt 0 ]; then
+		echo	"You are not connected to the Internet. Please check your Internet connection and try again."
+		/usr/bin/zenity --info --text="<b>Erreur:</b> Vous n'êtes pas connecté à Internet mais vous avez choisi une option nécessitant une connexion à Internet. Merci de corriger votre connexion à Internet et essayer à nouveau."
+	else
+		echo Internet connection - ok
+	fi
+}
+
+function testKeyServer()
+{
+	if test -f "$DIR/keys.gpg"; then
+		sudo apt-key adv --import "$DIR/keys.gpg"
+	else
+		# keyserver.ubuntu.com -> test
+		# normalement sur le port 11371
+		testconnection=`wget --tries=2 --timeout=5 "http://keyserver.ubuntu.com:80/pks/lookup?op=get&search=0x60D11217247D1CFF" -O /tmp/testinternet2 &>/dev/null 2>&1`
+		if [ $? -gt 0 ]; then
+			echo	"The keyserver isn't available, please double-click on 'ubuntu-keyserver.sh' script later"
+			KEYSERVER_FAIL=1
+		else
+			echo "Keyserver connection - ok"
+		fi
+		addallkey
+	fi
+}
+
+## n'ajoute que le dépôt (car le port pour communiquer avec le serveur de clé
+##  peut être bloqué dans un réseau universitaire)
+function AddMeApt ()
+{
+	myRepo=`echo "$1" | cut -d# -f1`
+	if [ "$MIRROR" = "yes" ]; then
+		SRC_FILE="$DIR/sources_out.list"
+		grep "^$myRepo" "$SRC_FILE" > /dev/null
+		if [ $? -eq 1 ]; then
+			# to not duplicate the repository
+			echo "$myRepo" | sudo tee -a "$SRC_FILE"
+		fi
+	fi
+	SRC_FILE="/etc/apt/sources.list"
+	myRepo=`echo "$1" | cut -d# -f1`
+	grep "^$myRepo" $SRC_FILE > /dev/null
+	if [ $? -eq 1 ]; then
+		# to not duplicate the repository
+		echo "$myRepo" | sudo tee -a $SRC_FILE
+	fi
+}
+
+function OurMirror ()
+{
+	if [ "$1" = "up" ]; then
+		if test -f "$DIR/keys.gpg"; then
+			sudo apt-key adv --import "$DIR/keys.gpg"
+		fi
+		if test -f "$DIR/sources_local.list"; then
+			sudo cp /etc/apt/sources.list /etc/apt/sources.list_ORIGINAL
+			sudo cp "$DIR/sources_local.list" /etc/apt/sources.list
+		else
+			echo "Pas de fichier sources_local.list"
+		fi
+	elif [ "$1" = "down" ]; then
+		if test -f "$DIR/sources_out.list"; then
+			sudo cp "$DIR/sources_out.list" /etc/apt/sources.list
+		else
+			echo "Pas de fichier /etc/apt/sources_out.list"
+		fi
+	elif [ "$1" = "original" ]; then
+		if test -f "/etc/apt/sources.list_ORIGINAL"; then
+			sudo cp /etc/apt/sources.list_ORIGINAL /etc/apt/sources.list
+		else
+			echo "Pas de fichier /etc/apt/sources.list_ORIGINAL"
+		fi
+	fi
+}
+
+function vgaswitchroo ()
+{
+	if test "$3" = "FORCE" -o `lspci |grep -c VGA` -eq 2 -a `lspci |grep VGA |grep -c Intel` -eq 1 -a `lspci |grep VGA |grep -c ATI` -eq 1; then
+		# $1 = on/off ; $2 = DIGD/DDIS
+		sudo sh -c "echo $2 > /sys/kernel/debug/vgaswitcheroo/switch"
+		sudo sh -c "echo $1 > /sys/kernel/debug/vgaswitcheroo/switch"
+		sudo sed -i "/^exit 0/ s/exit 0/\necho $1 > \/sys\/kernel\/debug\/vgaswitcheroo\/switch\n\nexit 0/g" /etc/rc.local
+	fi
+}
+
+function bumblebee ()
+{
+	if test "$1" = "FORCE" -o `lspci -vnn | grep -c '\''[030[02]\]'` -ge 2; then
+		AddMeApt "deb http://ppa.launchpad.net/bumblebee/stable/ubuntu $DISTRIB main ## Bumblebee"
+		BUMBLEBEE_MOD="1"
+	fi
+}
+
+function energy_grub ()
+{
+	sudo sed -i -e 's/\(GRUB_CMDLINE_LINUX_DEFAULT=\)"\(.*\)"/\1"quiet splash pcie_aspm=force"/' /etc/default/grub
+	sudo update-grub
+}
+
+function custom_gnome_shell ()
+{
+	mkdir -p tmp_gnome_shell
+	cd tmp_gnome_shell
+	if test -f "$DIR/gnome-shell-extensions.tar.gz"; then
+		tar xzf "$DIR/gnome-shell-extensions.tar.gz"
+		rm -rf gnome-shell-extensions.tar.gz
+		mkdir -p /home/$ON_USER/.local/share/gnome-shell/extensions/
+		mv * /home/$ON_USER/.local/share/gnome-shell/extensions/
+	fi
+	cd ..
+	rm -rf tmp_gnome_shell
+	list_extensions_gnome="`sudo -u $ON_USER \"DBUS_SESSION_BUS_ADDRESS=\"$DBUS_SESSION_BUS_ADDRESS gsettings get org.gnome.shell enabled-extensions`"
+	if test "$list_extensions_gnome" = "" -o "$list_extensions_gnome" = "@as []"; then
+		GNOME_SHELL_EXTENSIONS="1"
+	else
+		zenity --info --width=400 --height=200 --title="Gnome Shell Extensions" --text="Des extensions supplémentaires ont été installées mais pas activées car il semblerait que d'autres extensions ont déjà été activées.\nVeuillez donc les activer par vous même via l'outil 'Gnome-Tweak Tools'."
+	fi
+}
+
+# menu, buttons
+# - snap
+# + dbus, scale, expo, wobbly
+function custom_compiz ()
+{
+	COMPIZ_FLAT_FILE="/home/$ON_USER/.config/compiz-1/compizconfig/Default.ini"
+	COMPIZ_GCONF="/apps/compiz-1/general/screen0/options/active_plugins"
+
+	if test -d "/home/$ON_USER/.config/compiz-1"; then # compiz >= 0.9
+		# plug-ins in double are NO LONGER filtered by Compiz in this version... (and if plugins are in double or wrong, compiz crashes :) )
+		# flat file
+		if test -f "$COMPIZ_FLAT_FILE"; then
+			pluginsFlat=`grep "s0_active_plugins" $COMPIZ_FLAT_FILE`
+			if test `echo $pluginsFlat | grep -c snap` -gt 0; then
+				pluginsFlatWithoutSnap=`echo $pluginsFlat | sed -e "s/snap;//g"`
+				sed -i "/s0_active_plugins/ s/$pluginsFlat/$pluginsFlatWithoutSnap/g" $COMPIZ_FLAT_FILE
+			fi
+		fi
+		# gconf
+		plugins=`sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -g $COMPIZ_GCONF`
+		if test `echo $plugins | grep -c snap` -gt 0; then
+			pluginsWithoutSnap=`echo $plugins | sed -e "s/snap,//g"`
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s $COMPIZ_GCONF --type=list --list-type=string "$pluginsWithoutSnap"
+		fi
+	fi
+
+	if test -n "`which gsettings`"; then
+	sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface buttons-have-icons true 2> /dev/null
+	sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface menus-have-icons true 2> /dev/null
+	fi
+	if test -n "`which gconftool-2`"; then  # both gsettings and gconf can be present on the system, so we do both.
+		GCONFTOOL_CHECK=1
+		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/desktop/gnome/interface/buttons_have_icons' --type bool true
+		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/desktop/gnome/interface/menus_have_icons' --type bool true
+	fi
+
+	# Enable dbus, scale and expo plug-ins in Compiz.
+	if test -n "`which compiz`"; then
+		if test -d "/home/$ON_USER/.config/compiz"; then # compiz < 0.9
+			# flat file
+			if test -f "/home/$ON_USER/.config/compiz/compizconfig/Default.ini"; then
+				sed -i "/as_active_plugins/ s/.*/&;dbus;scale;expo/g" /home/$ON_USER/.config/compiz/compizconfig/Default.ini
+			fi
+			# gconf
+			if test -n "$GCONFTOOL_CHECK"; then
+				plugins=`sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -g /apps/compiz/general/allscreens/options/active_plugins`
+				sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s /apps/compiz/general/allscreens/options/active_plugins --type=list --list-type=string "${plugins:0:${#plugins}-1},dbus,scale,expo]"  # plug-ins in double are filtered by Compiz.
+			fi
+		fi
+		if test -d "/home/$ON_USER/.config/compiz-1"; then # compiz >= 0.9 => we can have compiz and compiz-1
+			# plug-ins in double are NO LONGER filtered by Compiz in this version... (and if plugins in double, compiz crashes :) )
+			# flat file
+			if test -f "/home/$ON_USER/.config/compiz-1/compizconfig/Default.ini"; then
+				pluginsFlat=`grep "s0_active_plugins" /home/$ON_USER/.config/compiz-1/compizconfig/Default.ini`
+				for i in dbus scale expo wobbly; do
+					if test `echo $pluginsFlat | grep -c $i` -eq 0; then
+						pluginsFlat="$pluginsFlat""$i;"
+						sed -i "/s0_active_plugins/ s/.*/&$i;/g" /home/$ON_USER/.config/compiz-1/compizconfig/Default.ini
+					fi
+				done
+			fi
+			# gconf
+			if test -n "$GCONFTOOL_CHECK"; then
+				plugins=`sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -g /apps/compiz-1/general/screen0/options/active_plugins`
+				for i in dbus scale expo wobbly; do
+					if test `echo $plugins | grep -c $i` -eq 0; then
+						plugins=${plugins:0:${#plugins}-1},$i]
+						sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s /apps/compiz-1/general/screen0/options/active_plugins --type=list --list-type=string "$plugins"
+					fi
+				done
+			fi
+		fi
+	fi
+}
+
+WORD8="Etape 1 : Réglages, corrections et dépôts"
+WORD9="Important: \\n\\n1. Si vous n'utilisez pas notre mirroir et ne sélectionnez pas\\nl'option 'Ajouter des dépôts additionnels', vous ne serez \\npas en mesure d'installer certains paquets à l'étape 2. \\n\\n2. Afin que certains paramètres soient pris en compte, vous devrez vous déconnecter et \\nvous reconnecter de votre session (mais seulement après que les étapes 1 et 2 soient \\nterminées!).\\n\\n3. Choisir \"Reset\" remettra à zéro cette option si vous l'aviez utilisé avant. Ne pas \\nchoisir à la fois un réglage et son option de remise à zéro! \\n\\nChoisir:"
+WORD10="Sélectionné"
+WORD11="Améliorations"
+WORD12="Déplacer les boutons de la fenêtres à droite (Affichage classique)"
+WORD13=">> Reset: \"Déplacer les boutons de la fenêtres à droite\""
+WORD14="Changer le comportement du Gestionnaire de Mises à jour à la manière de Jaunty (auto launch)"
+WORD15=">> Reset: \"Changer le comportement du Gestionnaire de Mises à jour à la manière de Jaunty\""
+WORD16="Supprimer les icônes des lecteurs montés sur le Bureau"
+WORD17=">> Reset: \"Supprimer les icônes des lecteurs montés sur le Bureau\""
+WORD18="Désactiver le son de connexion de LightDM (LightDM = écran de connexion)"
+WORD19=">> Reset: \"Désactiver le son de connexion de LightDM\""
+WORD20="Activer les icônes dans les menus et les boutons"
+WORD21=">> Reset: \"Activer les icônes dans les menus et les boutons\""
+WORD26="Enlever le paquet ubuntu-docs (libération de 252Mo)"
+WORD27=">> Reset \"Enlever le paquet ubuntu-docs (libération de 252Mo)\""
+WORD28="Installation et configuration des polices de caractères net (DÉCONSEILLÉ)"
+WORD29=">> Reset: \"Installation et configuration des polices de caractères net (Firefox inclus)\""
+WORD30="Corrige la lenteur de 'apt-get update' pour les dépôts de Google"
+WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de Google\""
+WORD32="Monter automatiquement les lecteurs NTFS au démarrage"
+WORD33=">> Reset: \"Monter automatiquement les lecteur NTFS au démarrage\""
+WORD34="Ajouter des dépôts additionnels (GetDeb, Medibuntu etc.) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
+WORD35="N'utiliser que la carte graphique intégrée à la carte mère (Intel si GPU Intel + ATI détecté)"
+WORD36="N'utiliser que la carte graphique dédiée (ATI si GPU Intel + ATI)"
+WORD37="Installer Bumblebee pour gérer la technologie Optimus (si Intel + Nvidia Optimus détecté)"
+WORD43="Installer Bumblebee pour gérer la technologie Optimus (forcer - attention à ce que vous faites)"
+WORD42="Ajouter les options dans le grub pour forcer l'économie d'énergie"
+WORD38="N'utiliser que la carte graphique intégrée à la carte mère (forcer - pour intel+nvidia sans Optimus attention à ce que vous faites)"
+WORD39="Ajouter notre miroir (32bits only)"
+WORD40="Télécharger un centre de logiciels dédié aux jeux"
+WORD41="Défilement des messages du terminal sans limite"
+
+#gui 1
+choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
+				--text="$WORD9" \
+				--list --column="$WORD10" --column="$WORD11" \
+				--checklist TRUE "$WORD39" FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD32" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" FALSE "$WORD40" TRUE "$WORD41"`
+
+if [ $? -eq 0 ];
+then
+	IFS="|"
+	for choicee in $choicess
+	do
+		if [ "$choicee" = "$WORD12" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --type string --set /apps/metacity/general/button_layout "menu:minimize,maximize,close"
+		elif [ "$choicee" = "$WORD13" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --type string --set /apps/metacity/general/button_layout "close,minimize,maximize:"
+		elif [ "$choicee" = "$WORD14" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/update-notifier/auto_launch false
+		elif [ "$choicee" = "$WORD15" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/update-notifier/auto_launch true
+		elif [ "$choicee" = "$WORD16" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/nautilus/desktop/volumes_visible false
+		elif [ "$choicee" = "$WORD17" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/nautilus/desktop/volumes_visible true
+		elif [ "$choicee" = "$WORD18" ];
+			then
+			sudo -u lightdm gconftool-2 --set /desktop/gnome/sound/event_sounds --type bool false
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/sound/event_sounds --type bool false
+		elif [ "$choicee" = "$WORD19" ];
+			then
+			sudo -u lightdm gconftool-2 --set /desktop/gnome/sound/event_sounds --type bool true
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/sound/event_sounds --type bool true
+		elif [ "$choicee" = "$WORD20" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/buttons_have_icons --type bool true
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/menus_have_icons --type bool true
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface buttons-have-icons true
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface menus-have-icons true
+		#elif [ "$choicee" = "$WORD41" ];
+			#then
+			#sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /system/indicator/me/display --type int 2
+		#elif [ "$choicee" = "$WORD42" ];
+			#then
+			#sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /system/indicator/me/display --type int 1
+		elif [ "$choicee" = "$WORD21" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/buttons_have_icons --type bool false
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/menus_have_icons --type bool false
+		elif [ "$choicee" = "$WORD26" ];
+			then
+			sudo apt-get purge -y --force-yes ubuntu-docs
+		elif [ "$choicee" = "$WORD27" ];
+			then
+			sudo apt-get -y --force-yes install ubuntu-docs
+		elif [ "$choicee" = "$WORD28" ];
+			then
+			testConnection
+			/usr/bin/zenity --info --text="Vous avez choisi d'installer les polices de caractères avec un meilleur rendu. Cela va prendre quelques minutes en focntion de votre connexion.\\n\\nCliquer sur Valider pour continuer! "
+			cd /tmp
+			echo "Installing Sharpfonts. This may take a few minutes depending on connection speed..."
+			# download and install the cabextract tool
+			echo "Installing the cabextract tool..."
+			sudo apt-get install -y --force-yes cabextract
+			# Download all needed fonts
+			wget http://sharpfonts.com/fonts/andale32.exe
+			wget http://sharpfonts.com/fonts/arial32.exe
+			wget http://sharpfonts.com/fonts/arialb32.exe
+			wget http://sharpfonts.com/fonts/comic32.exe
+			wget http://sharpfonts.com/fonts/courie32.exe
+			wget http://sharpfonts.com/fonts/georgi32.exe
+			wget http://sharpfonts.com/fonts/impact32.exe
+			wget http://sharpfonts.com/fonts/tahoma32.exe
+			wget http://sharpfonts.com/fonts/times32.exe
+			wget http://sharpfonts.com/fonts/trebuc32.exe
+			wget http://sharpfonts.com/fonts/verdan32.exe
+			wget http://sharpfonts.com/fonts/webdin32.exe
+			# create the needed directory if it is not existing
+			if [ ! -d $TRUETYPEPATH ]; then
+			mkdir -p $TRUETYPEPATH
+			fi
+			# Extract all fonts to the truetype directory
+			cabextract -d /usr/share/fonts/truetype/ andale32.exe arial32.exe arialb32.exe comic32.exe courie32.exe georgi32.exe impact32.exe tahoma32.exe times32.exe trebuc32.exe verdan32.exe webdin32.exe
+			# Download the xml files and extract the configuration files into /etc/fonts/
+			wget http://sharpfonts.com/fontconfig.tbz
+			tar xvjpf fontconfig.tbz -C /etc/fonts/
+			rm -r /tmp/*.exe > /dev/null 2>&1;
+			rm /tmp/fontconfig.tbz > /dev/null 2>&1;
+			#Firefox sharp fonts
+			touch /home/$ON_USER/.fonts.conf
+			echo "<?xml version=\"1.0\"?><!DOCTYPE fontconfig SYSTEM \"fonts.dtd\">" | tee	/home/$ON_USER/.fonts.conf
+			echo "<fontconfig>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<match target=\"font\" >" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<edit mode=\"assign\" name=\"rgba\" >" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<const>rgb</const>" | tee -a /home/$ON_USER/.fonts.conf
+				echo "</edit>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "</match>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<match target=\"font\" >" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<edit mode=\"assign\" name=\"hinting\" >" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<bool>true</bool>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "</edit>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "</match>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<match target=\"font\" >" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<edit mode=\"assign\" name=\"hintstyle\" >" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<const>hintfull</const>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "</edit>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "</match>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<match target=\"font\" >" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<edit mode=\"assign\" name=\"antialias\" >" | tee -a /home/$ON_USER/.fonts.conf
+			echo "<bool>true</bool>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "</edit>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "</match>" | tee -a /home/$ON_USER/.fonts.conf
+			echo "</fontconfig>" | tee -a /home/$ON_USER/.fonts.conf
+			chown $ON_USER /home/$ON_USER/.fonts.conf
+
+			echo "Sharp fonts installation finished... Please remember to logout and login again"
+			cd $DIR
+
+		elif [ "$choicee" = "$WORD29" ];
+			then
+			rm /etc/fonts/alias.conf /etc/fonts/local.conf /etc/fonts/misc.conf /etc/fonts/msfonts-rules.conf /home/$ON_USER/.fonts.conf > /dev/null 2>&1;
+		elif [ "$choicee" = "$WORD30" ];
+			then
+			echo "Acquire::http::Pipeline-Depth \"0\";" | sudo tee -a /etc/apt/apt.conf.d/90localsettings > /dev/null
+		elif [ "$choicee" = "$WORD31" ];
+			then
+			sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1; sudo cp /etc/apt/apt.conf.d/90localsettings /etc/apt/apt.conf.d/90localsettings_back; cat /etc/apt/apt.conf.d/90localsettings_back | sudo sed -e '/^Acquire::http::Pipeline-Depth.*/d' > /etc/apt/apt.conf.d/90localsettings; sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1;
+		elif [ "$choicee" = "$WORD32" ];
+			then
+				sudo apt-get -y --force-yes install ntfs-3g
+
+				if [ $(cat /etc/fstab | grep '^[^#].*ntfs-3g' > /tmp/checkntfs-3g.txt; cat /tmp/checkntfs-3g.txt | wc -l) -gt 0 ];
+				then
+					echo You already have ntfs-3g enabled
+				else
+					NTFSS=$(sudo blkid -c /dev/null -t TYPE=ntfs | cut -d ':' -f 1 > /tmp/checkntfs.txt)
+					while read curline; do
+						echo $curline #debugging
+						dirr=$(echo $curline | cut -c 6- | sed -e 's/\///g')
+						sudo mkdir /media/$dirr
+						NTFSUUID=$(sudo blkid -c /dev/null -t TYPE=ntfs | grep $curline | cut -d '"' -f 4)
+						echo $NTFSUUID #debugging
+						eval "echo UUID=$NTFSUUID	/media/$dirr ntfs-3g	users				0	0" | sudo tee -a /etc/fstab > /dev/null
+					done < /tmp/checkntfs.txt
+					echo Done!
+				fi
+				rm /tmp/checkntfs.txt /tmp/checkntfs-3g.txt > /dev/null 2>&1;
+		elif [ "$choicee" = "$WORD33" ];
+			then
+			sudo rm /etc/fstab_back > /dev/null 2>&1; sudo cp /etc/fstab /etc/fstab_back; cat /etc/fstab_back | sudo sed -e '/^UUID.*ntfs-3g.*/d' > /etc/fstab; sudo rm /etc/fstab_back > /dev/null 2>&1;
+		elif [ "$choicee" = "$WORD34" ];
+			then
+			testConnection
+			sudo rm /etc/apt/sources.list_backup > /dev/null 2>&1;
+			sudo cp /etc/apt/sources.list /etc/apt/sources.list_backup
+			# test medibuntu
+				/usr/bin/zenity --info --text="Merci de patientez pendant le test de vérification de la disponibilité des dépôts principaux Medibuntu et GetDeb et des miroirs (cela devrait prendre environ ~20 secondes)." &
+				testmedibuntu=`wget --tries=1 --timeout=5 http://packages.medibuntu.org/ -O /tmp/testmedibuntumain; cat /tmp/testmedibuntumain | wc -l`
+				testmedibuntuu=`wget --tries=1 --timeout=5 http://mirrors.ucr.ac.cr/medibuntu/ -O /tmp/testmedibuntuu; cat /tmp/testmedibuntuu | wc -l`
+				testmedibuntuuu=`wget --tries=1 --timeout=5 http://mirror.oscc.org.my/medibuntu/ -O /tmp/testmedibuntuuu; cat /tmp/testmedibuntuuu | wc -l`
+				testmedibuntuuuu=`wget --tries=1 --timeout=5 ftp://ftp.leg.uct.ac.za/pub/linux/medibuntu/ -O /tmp/testmedibuntuuuu; cat /tmp/testmedibuntuuuu | wc -l`
+				testgetdeb=`wget --tries=1 --timeout=5 http://archive.getdeb.net/getdeb/ -O /tmp/testgetdeb; cat /tmp/testgetdeb | wc -l`
+				testgetdebb=`wget --tries=1 --timeout=5 http://mirrors.dotsrc.org/getdeb/ -O /tmp/testgetdebb; cat /tmp/testgetdebb | wc -l`
+				if [ $testmedibuntu -gt 0 ]; then
+					mediserv="http://packages.medibuntu.org"
+					medibuntuserver="deb http://packages.medibuntu.org/ $DISTRIB free non-free"
+					medibuntuSOURCEserver="deb-src http://packages.medibuntu.org/ $DISTRIB free non-free"
+				elif [ $testmedibuntuu -gt 0 ]; then
+					mediserv="http://mirrors.ucr.ac.cr/medibuntu"
+					medibuntuserver="deb http://mirrors.ucr.ac.cr/medibuntu/ $DISTRIB free non-free"
+					medibuntuSOURCEserver="deb-src http://mirrors.ucr.ac.cr/medibuntu/ $DISTRIB free non-free"
+				elif [ $testmedibuntuuu -gt 0 ]; then
+					mediserv="http://mirror.oscc.org.my/medibuntu"
+					medibuntuserver="deb http://mirror.oscc.org.my/medibuntu/ $DISTRIB free non-free"
+					medibuntuSOURCEserver="deb-src http://mirror.oscc.org.my/medibuntu/ $DISTRIB free non-free"
+				elif [ $testmedibuntuuuu -gt 0 ]; then
+					mediserv="ftp://ftp.leg.uct.ac.za/pub/linux/medibuntu"
+					medibuntuserver="deb ftp://ftp.leg.uct.ac.za/pub/linux/medibuntu/ $DISTRIB free non-free"
+					medibuntuSOURCEserver="deb-src ftp://ftp.leg.uct.ac.za/pub/linux/medibuntu/ $DISTRIB free non-free"
+				fi
+				if [ $testgetdeb -gt 0 ]; then
+					getdebserver="deb http://archive.getdeb.net/ubuntu $DISTRIB-getdeb apps"
+					getdebSOURCEserver="deb-src http://archive.getdeb.net/ubuntu $DISTRIB-getdeb apps"
+				elif [ $testgetdebb -gt 0 ]; then
+					getdebserver="deb http://mirrors.dotsrc.org/getdeb/ubuntu $DISTRIB-getdeb apps"
+					getdebSOURCEserver="deb-src http://mirrors.dotsrc.org/getdeb/ubuntu $DISTRIB-getdeb apps"
+				fi
+				rm -f /tmp/testmedibuntumain /tmp/testmedibuntuu /tmp/testmedibuntuuu /tmp/testmedibuntuuuu /tmp/testgetdeb /tmp/testgetdebb > /dev/null 2>&1;
+
+			# cat /etc/apt/sources.list_backup | sed -e '/.*main.*restricted.*/d' > /etc/apt/sources.list; sleep 1	#delete the ubuntu default repositories so we don't get double repos
+			# sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*medibuntu.*oneiric free non-free/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_medibuntu > /dev/null 2>&1; sleep 1
+			#sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*getdeb.*oneiric-getdeb apps/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_getdeb > /dev/null 2>&1; sleep 1
+			#sleep 1; cp /etc/apt/sources.list /etc/apt/sources.list_empty; cat /etc/apt/sources.list_empty | sed '/^$/d' > /etc/apt/sources.list; sleep 1; rm /etc/apt/sources.list_empty > /dev/null 2>&1; #remove empty lines in sources.list
+			ARRAY=( "deb http://archive.canonical.com/ubuntu $DISTRIB partner ## Canonical" "deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu $DISTRIB main ## Cairo-Dock-PPA" "deb http://ppa.launchpad.net/matttbe/ppa/ubuntu $DISTRIB main ## Matttbe" $medibuntuserver $getdebserver )
+			ELEMENTS=${#ARRAY[@]}
+			# "deb http://ppa.launchpad.net/ailurus/ppa/ubuntu $DISTRIB main ## Ailurus"
+			# "deb http://ppa.launchpad.net/tualatrix/ppa/ubuntu $DISTRIB main ## Ubuntu-tweak"
+
+			for (( i=0;i<$ELEMENTS;i++));
+			do
+				AddMeApt "${ARRAY[${i}]}"
+			done
+			testConnection
+			rm /etc/apt/sources.list.d/medibuntu.list /etc/apt/sources.list.d/getdeb.list > /dev/null 2>&1; #delete medibuntu, dropbox and getdeb repos if they were placed in a different location (not sources.list) because we'll add them anyway - fix for not getting double repos
+			wget -q -O- $mediserv/medibuntu-key.gpg | apt-key add -
+			#sudo apt-get --quiet update && sudo apt-get --yes --quiet --allow-unauthenticated install medibuntu-keyring && sudo apt-get --quiet update
+			sudo apt-get update
+		elif [ "$choicee" = "$WORD35" ];
+			then
+			vgaswitchroo "OFF" "DIGD"
+		elif [ "$choicee" = "$WORD36" ];
+			then
+			vgaswitchroo "ON" "DDIS"
+		elif [ "$choicee" = "$WORD37" ];
+			then
+			bumblebee
+		elif [ "$choicee" = "$WORD43" ];
+			then
+			bumblebee "FORCE"
+		elif [ "$choicee" = "$WORD42" ];
+			then
+			energy_grub
+		elif [ "$choicee" = "$WORD38" ];
+			then
+			vgaswitchroo "OFF" "DIGD" "FORCE"
+		elif [ "$choicee" = "$WORD39" ];
+			then
+			if [ "i686" = `uname -m` ]; then
+				OurMirror "up"
+				apt-get update
+				MIRROR="yes"
+			else
+				echo "Only for 32 bits..."
+			fi
+		elif [ "$choicee" = "$WORD40" ];
+			then
+			sudo -u $ON_USER mkdir /home/$ON_USER/Jeux
+			cd /home/$ON_USER/Jeux
+			sudo -u $ON_USER wget http://www.lastos.org/team/LastOS/mgp/release/lastos-mgp-1.0.0-11.tar.gz
+			sudo -u $ON_USER tar xzf lastos-mgp-1.0.0-11.tar.gz
+			sudo -u sed -i "/desktop/d" install # pas besoin de son raccourcis qui se place sur un dossier inexistant sans les permissions.
+			sudo ./install
+			cd $DIR
+		elif [ "$choicee" = "$WORD41" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool true # (défilement)
+			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/use_theme_colors' --type bool false
+			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/background_color' --type string '#000000000000'
+			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/foreground_color' --type string '#FFFFFFFFFFFF'
+			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/background_type' --type string 'transparent'
+			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/background_darkness' --type float 0.9
+		fi
+	done
+	sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings-data-convert
+	IFS=""
+	echo "Fait! L'étape 2 va commencer!"
+else
+	echo cancel selected
+fi
+
+#gui 2
+choices=`/usr/bin/zenity --title="Etape 2: installation des paquets" --width=800 --height=600 --text="Choisissez les paquets à installer:" --list --column="Sélectionné" --column="Paquet" --column="Description" --checklist TRUE "Cairo-Dock" "Un environnement et une barre des tâches (dock) sympa et pratique" FALSE "Cairo-Dock Weekly" "Un environnement et une barre des tâches sympa et pratique (Weekly version)" FALSE "Chromium Browser" "Navigateur open source" TRUE "Thèmes supplémentaires" "Installation des thèmes de community and Bisigi" FALSE "Evolution" "Client E-mail" FALSE "Dropbox" "Application qui synchronise un dossier avec des serveurs sur le cloud (Gratuit, 2Go)" FALSE "Google Earth" "Google Earth vous permet de voyager partout sur Terre" FALSE "Outils de développement" "De build-essential à Subversion, GIT et autres" FALSE "Outils de packaging Debian-Ubuntu" "Pour la construction de paquets et développement pour Debian et Ubuntu" FALSE "Emesene" "MSN client" FALSE "Pidgin" "Client de messageries instantanées" TRUE "Inkscape" "Editeur d'images vectorielles" TRUE "Gimp" "Editeur complet d'images bitmap" FALSE "LaTeX" "LaTeX (binaires, modules et éditeur)" FALSE "aMule" "eMule" FALSE "Eclipse" "L'éditeur pour développeur par IBM" TRUE "Misc" "Quelques utilitaires (convertir du texte, de la musique, renommer plusieurs fichiers, etc.)" TRUE "Environnement de bureau Gnome" "Gnome-Shell et le Gnome-Panel" TRUE "Wine" "Lancer des applications Windows sous Linux" TRUE "VLC" "Lecteur de vidéos" TRUE "MPlayer" "Lecteur de vidéos (MPlayer GUI)" "TRUE" "Codecs et extras" "Codecs (multimedia, java, flash), support d'archives supplémentaires, support DVD et fonts" TRUE "Ubuntu-Tweak" "Outil d'amélioration d'Ubuntu et plein de dépôts additionnels (PPAs) (Attention, beta)" TRUE "CCSM et extra plugins" "CompizConfig Settings Manager et extra plugins" "FALSE" "Skype" "Application VoIP chat" "TRUE" "OpenShot" "Éditeur de vidéo simple et puissant" "FALSE" "Audacity" "Éditeur audio simple et puissant" "FALSE" "Blender" "Logiciel complet et puissant de création de vidéos animée" "TRUE" "Google Talk plugin" "Plugin Google Talk pour le navigateur (audio et vidéo chat dans GMail et Google Plus)" "TRUE" "Economie d'énergie" "Deux outils (powertop et jupiter) pour la gestion de l'énergie des ordinateurs portables" "FALSE" "GThumb" "Visionneur d'image rapide avec plusieurs options intéressantes" "FALSE" "EasyTag" "Éditeur performant de tags pour les fichiers audio" "FALSE" "Gobby" "Editeur de texte collaboratif (édition à plusieurs en même temps)" "FALSE" "Hugin" "Créateur de panorama à partir de plusieurs photos" "FALSE" "FileZilla" "Client FTP réputé" "FALSE" "Synapse" "Recherche rapide d'un peu de tout" "FALSE" "EasyStroke" "Contrôle du bureau avec des mouvements de souris" "FALSE" "ZRam" "Utiliser ZRam (compression de la mémoire ram peu utilisée): très conseillé pour les PCs avec 2 Go de Ram et moins)"`
+# FALSE "Java (Sun)" "La version officielle de Java (Sun)"
+
+packagesInst=""
+if [ $? -eq 0 ]
+then
+	IFS="|"
+	testConnection
+	/usr/bin/zenity --info --text="Le téléchargement et l'installation des paquets va commencer. Merci de ne pas redémarrer votre ordinateur tant que le script n'a pas terminé! " &
+	if [ "$choices" = "" ]; then
+		echo "Opération annulée"
+		sleep 1
+		exit 1
+	fi
+	for choice in $choices
+	do
+		if [ "$choice" = "Java (Sun)" ];
+			then
+				# TODO?
+				# http://www.webupd8.org/2011/09/how-to-install-oracle-java-7-jdk-in.html
+				sudo echo sun-java6-jre shared/accepted-sun-dlj-v1-1 select true | sudo /usr/bin/debconf-set-selections
+				packagesInst="$packagesInst sun-java6-plugin sun-java6-jre sun-java6-fonts "
+		elif [ "$choice" = "Cairo-Dock" ];
+			then
+				if [ "$MIRROR" != "yes" ]; then
+					AddMeApt "deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu $DISTRIB main ## Cairo-Dock-PPA"
+				fi
+				packagesInst="$packagesInst cairo-dock cairo-dock-plug-ins "
+		elif [ "$choice" = "Cairo-Dock Weekly" ];
+			then
+				AddMeApt "deb http://ppa.launchpad.net/cairo-dock-team/weekly/ubuntu $DISTRIB main ## Cairo-Dock-PPA-Weekly"
+				packagesInst="$packagesInst cairo-dock cairo-dock-plug-ins "
+		elif [ "$choice" = "Chromium Browser" ];
+			then
+				packagesInst="$packagesInst chromium-browser chromium-browser-l10n "
+		elif [ "$choice" = "Thèmes supplémentaires" ];
+			then
+				if [ "$MIRROR" != "yes" ]; then
+					#AddMeApt "deb http://ppa.launchpad.net/bisigi/ppa/ubuntu $DISTRIB main ## Thèmes Francois Vogelweith"
+					AddMeApt "deb http://ppa.launchpad.net/tiheum/equinox/ubuntu $DISTRIB main ## Equinox"
+				fi
+				# packagesInst="$packagesInst bisigi-themes community-themes gtk2-engines-equinox equinox-theme equinox-ubuntu-theme faenza-icon-theme "
+				packagesInst="$packagesInst gtk2-engines-equinox equinox-theme equinox-ubuntu-theme faenza-icon-theme faenza-icons-mono ubuntu-wallpapers-extra gtk2-engines-murrine "
+		elif [ "$choice" = "Google Earth" ];
+			then
+				sudo echo googleearth shared/accepted-googleearth-eula select true | sudo /usr/bin/debconf-set-selections
+				AddMeApt "deb http://dl.google.com/linux/deb/ testing non-free ## Google Testing Respo"
+				if [ "i686" = `uname -m` ]; then
+					packagesInst="$packagesInst googleearth googleearth-data "
+				else
+					packagesInst="$packagesInst ia32-libs googleearth googleearth-data "
+				fi
+		elif [ "$choice" = "Google Talk plugin" ];
+			then
+				GT_LIST="/etc/apt/sources.list.d/google-talkplugin.list"
+				sudo rm -f $GT_LIST
+				sudo touch $GT_LIST
+				echo "### THIS FILE IS AUTOMATICALLY CONFIGURED ###" | sudo tee -a $GT_LIST > /dev/null
+				echo "# You may comment out this entry, but any other modifications may be lost." | sudo tee -a $GT_LIST > /dev/null
+				echo "deb http://dl.google.com/linux/talkplugin/deb/ stable main" | sudo tee -a $GT_LIST > /dev/null
+				if [ "i686" = `uname -m` ]; then
+					packagesInst="$packagesInst google-talkplugin "
+				else
+					packagesInst="$packagesInst ia32-libs google-talkplugin "
+				fi
+		elif [ "$choice" = "Outils de développement" ];
+			then
+				packagesInst="$packagesInst build-essential automake make patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr "
+		elif [ "$choice" = "Outils de packaging Debian-Ubuntu" ];
+			then
+				packagesInst="$packagesInst build-essential automake make checkinstall patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr debhelper pbuilder cdbs quilt fakeroot xutils lintian dh-make ubuntu-dev-tools "
+		elif [ "$choice" = "Dropbox" ];
+			then
+				echo "deb http://linux.dropbox.com/ubuntu $DISTRIB main" > /home/$ON_USER/dropbox.list
+				sudo mv /home/$ON_USER/dropbox.list /etc/apt/sources.list.d/dropbox.list
+				packagesInst="$packagesInst nautilus-dropbox "
+		elif [ "$choice" = "LaTeX" ];
+			then
+				packagesInst="$packagesInst texlive dvipdfmx lmodern perl-tk texlive-latex-extra latex-beamer latex-xcolor texlive-science texlive-generic-extra texlive-fonts-recommended texlive-pictures texmaker latexila rubber chktex pstoedit python-poppler gedit-latex-plugin texlive-lang-french latexila "
+				LATEX_DOC_REMOVE=`zenity --title="LaTeX" --text="Voulez-vous enlever les paquets contenant la doc (généralement inutiles, grand gain de place)" --list --column="Choix" --column="" --radiolist TRUE "Oui" FALSE "Non"`
+		elif [ "$choice" = "VLC" ];
+			then
+				packagesInst="$packagesInst vlc-plugin-notify vlc-plugin-pulse "
+		elif [ "$choice" = "Codecs et extras" ];
+			then
+				sudo echo sun-java6-jre shared/accepted-sun-dlj-v1-1 select true | sudo /usr/bin/debconf-set-selections
+				sudo echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo /usr/bin/debconf-set-selections
+				packagesInst="$packagesInst ubuntu-restricted-addons ubuntu-restricted-extras gstreamer0.10-ffmpeg gstreamer0.10-plugins-bad gstreamer0.10-plugins-bad-multiverse gstreamer0.10-plugins-ugly gstreamer0.10-plugins-ugly-multiverse libdvdnav4 libdvdread4 libdvdcss2 libxine1-ffmpeg rar unrar p7zip-full p7zip-rar unace ttf-mscorefonts-installer ttf-liberation mencoder adobe-flashplugin "
+				if [ "i686" = `uname -m` ]; then
+					packagesInst="$packagesInst gstreamer0.10-pitfdll w32codecs "
+				else
+					packagesInst="$packagesInst w64codecs "
+				fi
+		elif [ "$choice" = "Ubuntu-Tweak" ];
+			then
+				if [ "$MIRROR" != "yes" ]; then
+					AddMeApt "deb http://ppa.launchpad.net/tualatrix/ppa/ubuntu $DISTRIB main ## Ubuntu-Tweak Next"
+				fi
+				packagesInst="$packagesInst ubuntu-tweak "
+		elif [ "$choice" = "CCSM et extra plugins" ];
+			then
+				packagesInst="$packagesInst compizconfig-settings-manager compiz-fusion-plugins-extra compiz-fusion-plugins-main compiz-plugins compiz-plugins-default compiz-plugins-extra compiz-plugins-main compiz-plugins-main-default "
+		elif [ "$choice" = "Misc" ];
+			then
+				packagesInst="$packagesInst ntfs-3g soundconverter mp3splt mp3gain trickle nautilus-wallpaper nautilus-open-terminal nautilus-gksu nautilus-image-converter pdfedit cheese gm-notify frozen-bubble winff startupmanager gedit-plugins pyrenamer mozplugger cabextract ntp parcellite hardinfo libnotify-bin sl ffmpeg unp pdfshuffler dconf-tools gconf-editor htop "
+				if [ "`echo $LANG |cut -d_ -f1`" = "fr" ]; then
+					packagesInst="$packagesInst libreoffice-l10n-fr language-pack-gnome-fr language-support-writing-fr aspell-fr "
+					#if test ! -d /usr/share/doc/simplecommeubuntu; then
+					#	packagesInst="$packagesInst simplecommeubuntu "
+					#fi
+				fi
+		elif [ "$choice" = "Economie d'énergie" ];
+			then
+				if [ "$MIRROR" != "yes" ]; then
+					AddMeApt "deb http://ppa.launchpad.net/webupd8team/jupiter/ubuntu $DISTRIB main ## Jupiter"
+				fi
+				packagesInst="$packagesInst powertop pyjupiter "
+		elif [ "$choice" = "ZRam" ];
+			then
+				AddMeApt "deb http://ppa.launchpad.net/shnatsel/zram/ubuntu $DISTRIB main ## ZRam"
+				packagesInst="$packagesInst zramswap-enabler "
+		elif [ "$choice" = "Environnement de bureau Gnome" ];
+			then
+				if [ "$MIRROR" != "yes" ]; then
+					AddMeApt "deb http://ppa.launchpad.net/webupd8team/gnome3/ubuntu $DISTRIB main ## Gnome3"
+				fi
+				packagesInst="$packagesInst gnome-panel gnome-shell gnome-tweak-tool mgse-bottompanel mgse-menu mgse-windowlist gnome-shell-extensions-mediaplayer gnome-shell-extensions-extended-places-menu gnome-shell-extensions-apps-menu gnome-shell-extensions-workspace-indicator gnome-shell-extensions-common gnome-shell-extensions-dock gnome-shell-extensions-system-monitor gnome-shell-extensions-alternative-status-menu gnome-shell-extensions-windows-navigator gnome-shell-extensions-native-window-placement gnome-shell-extensions-user-theme gnome-shell-extensions-alternate-tab gnome-shell-extensions-drive-menu gnome-shell-extensions-places-menu gnome-shell-extensions-noa11y gnome-shell-extensions-weather "
+				custom_gnome_shell
+				# apt-cache search gnome-shell-extension | awk '{ print $1 }' | xargs
+		else
+				choiceLOW=`echo $choice | tr '[:upper:]' '[:lower:]'`
+				packagesInst="$packagesInst $choiceLOW "
+		fi
+	done
+
+	if [ "$BUMBLEBEE_MOD" = "1" ]; then
+		packagesInst="$packagesInst bumblebee bumblebee-nvidia "
+	fi
+
+#installation
+# 	/usr/bin/zenity --info --text="Start the Installation?"
+	testConnection # connexion
+	testKeyServer	# keys
+
+	# removed cdrom
+	sudo sed -i 's/^deb cdrom/# deb cdrom/g' /etc/apt/sources.list
+	sudo apt-get update
+
+	# Upgrade
+	echo -e "\n\t ====== Dist Upgrade ======\n"
+	sudo apt-get dist-upgrade -y --force-yes
+
+	# Script vérification
+	echo -e "\n\t ====== Packages verification and installation! =======\n"
+
+	mkdir -p /tmp/matttbe/
+	echo -e '# on ajoute que les paquets qui manquent
+	echo "\t on ajoute que les paquets qui manquent"
+	unset $paquetsPresent
+	for testPkg in '"$packagesInst"'; do
+		dpkg -s $testPkg |grep installed |grep "install ok" > /dev/null	
+		if [ $? -eq 1 ]; then
+			paquetsPresent="$paquetsPresent $testPkg"
+		fi
+	done
+	# on vérifie la présence des paquets :
+	unset $paquetsOK
+	unset $paquetsNOTok
+	echo "\t on vérifie la présence des paquets"
+	for testPkg in $paquetsPresent; do
+		sudo apt-get install -s $testPkg > /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			paquetsOK="$paquetsOK $testPkg"
+			echo "$testPkg est un paquet disponible"
+		else
+			paquetsNOTok="$paquetsNOTok $testPkg"
+			echo "==== $testPkg est introuvable sur les dépôts ===="
+		fi
+	done
+	## Une fois la liste vérifiée, on écrase le fichier avec la commande minimale pour la suite
+	echo "sudo apt-get install -y --force-yes -m $paquetsOK
+	# Paquets mauvais: $paquetsNOTok" > /tmp/matttbe/install_packages.sh
+	#sudo apt-get install -y --force-yes -m $paquetsOK' > /tmp/matttbe/check_packages.sh
+	chmod +x /tmp/matttbe/check_packages.sh
+	# sudo xterm -e "sudo sh /home/$ON_USER/install_paquets.sh"	# check packages
+	sudo sh /tmp/matttbe/check_packages.sh # check packages
+	chmod +x /tmp/matttbe/install_packages.sh
+	sudo sh /tmp/matttbe/install_packages.sh # install
+
+#	sudo apt-get install -y --force-yes $packagesInst
+	sudo apt-get install -f -y
+	if test -e "/usr/share/doc/libdvdread4/install-css.sh"; then
+		sudo /usr/share/doc/libdvdread4/install-css.sh	#dvd
+	fi
+#cleaning up
+	if [ "$LATEX_DOC_REMOVE" = "Oui" ]; then
+		packageToRemove=""
+		for i in "texlive-latex-extra-doc texlive-science-doc texlive-fonts-recommended-doc texlive-pictures-doc"; do
+			if test -d /usr/share/doc/$i; then
+				packageToRemove="$packageToRemove $i "
+			fi
+		done
+		if [ "$packageToRemove" != "" ]; then
+			sudo apt-get purge -y --force-yes $packageToRemove
+		fi
+	fi
+	#if test -d /usr/share/doc/simplecommeubuntu; then
+	#	cp /usr/share/doc/simplecommeubuntu/*.pdf.gz /home/$ON_USER/Bureau/
+	#	gzip -d /home/$ON_USER/Bureau/*.pdf.gz
+	#fi
+	if [ "$BUMBLEBEE_MOD" = "1" ]; then
+		sudo usermod -a -G bumblebee $ON_USER
+	fi
+	if [ "$GNOME_SHELL_EXTENSIONS" ]; then
+		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.shell enabled-extensions "['windowlist@linuxmint.com', 'menu@linuxmint.com', 'bottompanel@linuxmint.com', 'advanced-settings-in-usermenu@nuware.ru', 'alternative-status-menu@gnome-shell-extensions.gnome.org', 'music-integration@brianrobles204', 'overlay-icons@vinicius.depizzol.com.br', 'removeaccesibility@lomegor']"
+	fi
+	sudo apt-get clean
+	sudo apt-get autoclean
+	sudo apt-get autoremove -y
+	if [ "$MIRROR" = "yes" ]; then
+		OurMirror "down"
+		echo "Utilisation des serveurs externes"
+		sudo apt-get update
+	fi
+#notices
+	lang=${LANG%_*}
+	text="Installation terminée, merci d'avoir utilisé ce script"
+	(mplayer "http://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&q=${text}" &> /dev/null &)
+	/usr/bin/zenity --info --text="Installation terminée, merci d'avoir utilisé ce script!"
+	IFS=""
+	sl	# train
+	rm /tmp/testinternet > /dev/null 2>&1;
+else
+	rm /tmp/testinternet > /dev/null 2>&1;
+	echo cancel selected
+	exit
+fi
+
+
+#changelog
+
+#0.6
+# by matttbe
+# => oneiric
+#0.5
+# by matttbe
+# Test connexion to the keyserver

@@ -1,0 +1,34 @@
+# deb cdrom:[Ubuntu 10.10 _oneiric Meerkat_ - Release i386 (20101007)]/ oneiric main restricted
+# See http://help.ubuntu.com/community/UpgradeNotes for how to upgrade to
+# newer versions of the distribution.
+
+# be.archive.ubuntu.com
+deb http://be.archive.ubuntu.com/ubuntu/ oneiric main restricted universe multiverse
+deb http://be.archive.ubuntu.com/ubuntu/ oneiric-updates main restricted universe multiverse
+deb http://be.archive.ubuntu.com/ubuntu/ oneiric-security main restricted universe multiverse
+
+# archive.canonical.com
+deb http://archive.canonical.com/ubuntu oneiric partner
+
+# extras.ubuntu.com
+deb http://extras.ubuntu.com/ubuntu oneiric main
+
+# ppa.launchpad.net
+deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu oneiric main ## Cairo-Dock
+deb http://ppa.launchpad.net/latexila/ppa/ubuntu oneiric main ## LaTeXila
+deb http://ppa.launchpad.net/tiheum/equinox/ubuntu oneiric main ## Thèmes equinox
+deb http://ppa.launchpad.net/tualatrix/ppa/ubuntu oneiric main ## Ubuntu-Tweak
+deb http://ppa.launchpad.net/webupd8team/jupiter/ubuntu oneiric main ## Jupiter
+deb http://ppa.launchpad.net/webupd8team/gnome3/ubuntu oneiric main ## Gnome Shell
+deb http://ppa.launchpad.net/matttbe/ppa/ubuntu oneiric main ## Matttbe
+
+#deb http://ppa.launchpad.net/tualatrix/ubuntu oneiric main ## ubuntu-tweak
+#deb http://ppa.launchpad.net/tualatrix/next/ubuntu oneiric main
+#deb http://ppa.launchpad.net/bisigi/ppa/ubuntu oneiric main ## Thèmes bisigi
+#deb http://ppa.launchpad.net/ailurus/ppa/ubuntu oneiric main ## Ailurus
+
+# packages.medibuntu.org
+deb http://packages.medibuntu.org/ oneiric free non-free
+
+# archive.getdeb.net
+deb http://archive.getdeb.net/ubuntu oneiric-getdeb apps
