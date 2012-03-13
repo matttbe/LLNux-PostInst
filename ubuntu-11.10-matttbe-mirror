@@ -779,7 +779,7 @@ then
 				if [ "$MIRROR" != "yes" ]; then
 					AddMeApt "deb http://ppa.launchpad.net/webupd8team/jupiter/ubuntu $DISTRIB main ## Jupiter"
 				fi
-				packagesInst="$packagesInst powertop pyjupiter "
+				packagesInst="$packagesInst powertop jupiter "
 		elif [ "$choice" = "ZRam" ];
 			then
 				AddMeApt "deb http://ppa.launchpad.net/shnatsel/zram/ubuntu $DISTRIB main ## ZRam"
