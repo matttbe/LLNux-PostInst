@@ -1,8 +1,8 @@
 #!/bin/bash
 # Script which should help users install / tweak some stuff immediately
-# after installing Ubuntu 11.10 32bit and 64bit.
+# after installing Ubuntu 12.04 32bit and 64bit.
 #
-#     version 11.10.2
+#     version 12.04.0
 #
 # The script comes with no warranty. The author is not responsible if
 # your system breaks.
@@ -50,28 +50,26 @@ DISTRIB=$(grep -e DISTRIB_CODENAME /etc/lsb-release | cut -d= -f2)
 DISTRIBNUM=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -f1)
 DISTRIBNUM2=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -f2)
 
-#
-if test $DISTRIBNUM -ge 11 -a $DISTRIBNUM2 -ge 10; then
-	echo "WARNING: This script has been made for Ubuntu Oneiric! "
-	DISTRIB=oneiric
+# warning
+if test $DISTRIBNUM -ne 12 -o "$DISTRIB" = "quantal"; then
+	echo "WARNING: This script has been made for Ubuntu Precise 12.04! "
+	/usr/bin/zenity --warning --title="WARNING" --text="You are not using Ubuntu 12.04 Precise Pangolin"
+	if test "$DISTRIB" = "quantal"; then
+		DISTRIB=precise
+	fi
+	sleep 2
 fi
 
 #check if the user is running 32 or 64bit
-if [ "oneiric" = "$DISTRIB" ]; then
-	if [ "i686" = `uname -m` ]; then
-		echo "Using `cat /etc/issue.net` x86 (i386) - [ OK ]"
-		arch=i386
-	elif [ "x86_64" = `uname -m` ]; then
-		echo "Using `cat /etc/issue.net` x68_64 (amd64) - [ OK ]"
-		arch=amd64
-	else
-		/usr/bin/zenity --warning --title="$WORD1" --text="$WORD2"
-		echo You are not using `cat /etc/issue.net` 32 or 64bits, exiting
-		exit
-	fi
+if [ "i686" = `uname -m` ]; then
+	echo "Using `cat /etc/issue.net` x86 (i386) - [ OK ]"
+	arch=i386
+elif [ "x86_64" = `uname -m` ]; then
+	echo "Using `cat /etc/issue.net` x68_64 (amd64) - [ OK ]"
+	arch=amd64
 else
-	/usr/bin/zenity --warning --title="$WORD1" --text="$WORD3"
-	echo You are not using Ubuntu 11.10 Oneiric Ocelot, exiting
+	/usr/bin/zenity --warning --title="$WORD1" --text="$WORD2"
+	echo You are not using `cat /etc/issue.net` 32 or 64bits, exiting
 	exit
 fi
 
@@ -298,6 +296,7 @@ function custom_compiz ()
 	COMPIZ_FLAT_FILE="/home/$ON_USER/.config/compiz-1/compizconfig/Default.ini"
 	COMPIZ_GCONF="/apps/compiz-1/general/screen0/options/active_plugins"
 
+	# disable snap (for wobbly)
 	if test -d "/home/$ON_USER/.config/compiz-1"; then # compiz >= 0.9
 		# plug-ins in double are NO LONGER filtered by Compiz in this version... (and if plugins are in double or wrong, compiz crashes :) )
 		# flat file
@@ -310,9 +309,11 @@ function custom_compiz ()
 		fi
 		# gconf
 		plugins=`sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -g $COMPIZ_GCONF`
-		if test `echo $plugins | grep -c snap` -gt 0; then
-			pluginsWithoutSnap=`echo $plugins | sed -e "s/snap,//g"`
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s $COMPIZ_GCONF --type=list --list-type=string "$pluginsWithoutSnap"
+		if test -n "$plugins"; then
+			if test `echo $plugins | grep -c snap` -gt 0; then
+				pluginsWithoutSnap=`echo $plugins | sed -e "s/snap,//g"`
+				sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s $COMPIZ_GCONF --type=list --list-type=string "$pluginsWithoutSnap"
+			fi
 		fi
 	fi
 
@@ -326,12 +327,12 @@ function custom_compiz ()
 		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/desktop/gnome/interface/menus_have_icons' --type bool true
 	fi
 
-	# Enable dbus, scale and expo plug-ins in Compiz.
+	# Enable wobbly, dbus, scale and expo plug-ins in Compiz.
 	if test -n "`which compiz`"; then
 		if test -d "/home/$ON_USER/.config/compiz"; then # compiz < 0.9
 			# flat file
 			if test -f "/home/$ON_USER/.config/compiz/compizconfig/Default.ini"; then
-				sed -i "/as_active_plugins/ s/.*/&;dbus;scale;expo/g" /home/$ON_USER/.config/compiz/compizconfig/Default.ini
+				sudo -u $ON_USER sed -i "/as_active_plugins/ s/.*/&;dbus;scale;expo/g" /home/$ON_USER/.config/compiz/compizconfig/Default.ini
 			fi
 			# gconf
 			if test -n "$GCONFTOOL_CHECK"; then
@@ -354,12 +355,17 @@ function custom_compiz ()
 			# gconf
 			if test -n "$GCONFTOOL_CHECK"; then
 				plugins=`sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -g /apps/compiz-1/general/screen0/options/active_plugins`
-				for i in dbus scale expo wobbly; do
-					if test `echo $plugins | grep -c $i` -eq 0; then
-						plugins=${plugins:0:${#plugins}-1},$i]
-						sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s /apps/compiz-1/general/screen0/options/active_plugins --type=list --list-type=string "$plugins"
-					fi
-				done
+				if test -n "$plugins"; then
+					for i in dbus scale expo wobbly; do
+						if test `echo $plugins | grep -c $i` -eq 0; then
+							plugins=${plugins:0:${#plugins}-1},$i]
+							sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s /apps/compiz-1/general/screen0/options/active_plugins --type=list --list-type=string "$plugins"
+						fi
+					done
+				else
+					plugins="[core,composite,opengl,compiztoolbox,decor,vpswitch,snap,mousepoll,resize,place,move,wall,grid,regex,imgpng,session,gnomecompat,animation,fade,staticswitcher,workarounds,scale,expo,ezoom,dbus,wobbly]"
+					sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s /apps/compiz-1/general/screen0/options/active_plugins --type=list --list-type=string "$plugins"
+				fi
 			fi
 		fi
 	fi
@@ -402,7 +408,8 @@ WORD41="Défilement des messages du terminal sans limite"
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist TRUE "$WORD39" FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD32" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" FALSE "$WORD40" TRUE "$WORD41"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD32" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" FALSE "$WORD40" TRUE "$WORD41"`
+# miroir désactivé pour le moment: => TRUE "$WORD39"
 
 if [ $? -eq 0 ];
 then
@@ -592,8 +599,8 @@ then
 				rm -f /tmp/testmedibuntumain /tmp/testmedibuntuu /tmp/testmedibuntuuu /tmp/testmedibuntuuuu /tmp/testgetdeb /tmp/testgetdebb > /dev/null 2>&1;
 
 			# cat /etc/apt/sources.list_backup | sed -e '/.*main.*restricted.*/d' > /etc/apt/sources.list; sleep 1	#delete the ubuntu default repositories so we don't get double repos
-			# sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*medibuntu.*oneiric free non-free/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_medibuntu > /dev/null 2>&1; sleep 1
-			#sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*getdeb.*oneiric-getdeb apps/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_getdeb > /dev/null 2>&1; sleep 1
+			# sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*medibuntu.*precise free non-free/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_medibuntu > /dev/null 2>&1; sleep 1
+			#sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*getdeb.*precise-getdeb apps/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_getdeb > /dev/null 2>&1; sleep 1
 			#sleep 1; cp /etc/apt/sources.list /etc/apt/sources.list_empty; cat /etc/apt/sources.list_empty | sed '/^$/d' > /etc/apt/sources.list; sleep 1; rm /etc/apt/sources.list_empty > /dev/null 2>&1; #remove empty lines in sources.list
 			ARRAY=( "deb http://archive.canonical.com/ubuntu $DISTRIB partner ## Canonical" "deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu $DISTRIB main ## Cairo-Dock-PPA" "deb http://ppa.launchpad.net/matttbe/ppa/ubuntu $DISTRIB main ## Matttbe" $medibuntuserver $getdebserver )
 			ELEMENTS=${#ARRAY[@]}
@@ -876,6 +883,7 @@ then
 	if [ "$BUMBLEBEE_MOD" = "1" ]; then
 		sudo usermod -a -G bumblebee $ON_USER
 	fi
+# gnome-shell
 	if [ "$GNOME_SHELL_EXTENSIONS" ]; then
 		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.shell enabled-extensions "['windowlist@linuxmint.com', 'menu@linuxmint.com', 'bottompanel@linuxmint.com', 'advanced-settings-in-usermenu@nuware.ru', 'alternative-status-menu@gnome-shell-extensions.gnome.org', 'music-integration@brianrobles204', 'overlay-icons@vinicius.depizzol.com.br', 'removeaccesibility@lomegor']"
 	fi
@@ -900,13 +908,3 @@ else
 	echo cancel selected
 	exit
 fi
-
-
-#changelog
-
-#0.6
-# by matttbe
-# => oneiric
-#0.5
-# by matttbe
-# Test connexion to the keyserver

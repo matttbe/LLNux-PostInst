@@ -1,29 +1,29 @@
 # be.archive.ubuntu.com
-deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ oneiric main restricted universe multiverse
-deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ oneiric-updates main restricted universe multiverse
-deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ oneiric-security main restricted universe multiverse
+deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ precise main restricted universe multiverse
+deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ precise-updates main restricted universe multiverse
+deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ precise-security main restricted universe multiverse
 
 # archive.canonical.com
-deb http://192.168.1.2/archive.canonical.com/ubuntu oneiric partner
+deb http://192.168.1.2/archive.canonical.com/ubuntu precise partner
 
 # extras.ubuntu.com
-deb http://192.168.1.2/extras.ubuntu.com/ubuntu oneiric main
+deb http://192.168.1.2/extras.ubuntu.com/ubuntu precise main
 
 # ppa.launchpad.net
-deb http://192.168.1.2/ppa.launchpad.net/cairo-dock-team/ppa/ubuntu oneiric main
-deb http://192.168.1.2/ppa.launchpad.net/latexila/ppa/ubuntu oneiric main
-deb http://192.168.1.2/ppa.launchpad.net/tiheum/equinox/ubuntu oneiric main
-deb http://192.168.1.2/ppa.launchpad.net/tualatrix/ppa/ubuntu oneiric main
-deb http://192.168.1.2/ppa.launchpad.net/webupd8team/jupiter/ubuntu oneiric main
-deb http://192.168.1.2/ppa.launchpad.net/webupd8team/gnome3/ubuntu oneiric main ## Gnome Shell
-deb http://192.168.1.2/ppa.launchpad.net/matttbe/ppa/ubuntu oneiric main ## Matttbe
+deb http://192.168.1.2/ppa.launchpad.net/cairo-dock-team/ppa/ubuntu precise main
+deb http://192.168.1.2/ppa.launchpad.net/latexila/ppa/ubuntu precise main
+deb http://192.168.1.2/ppa.launchpad.net/tiheum/equinox/ubuntu precise main
+deb http://192.168.1.2/ppa.launchpad.net/tualatrix/ppa/ubuntu precise main
+deb http://192.168.1.2/ppa.launchpad.net/webupd8team/jupiter/ubuntu precise main
+deb http://192.168.1.2/ppa.launchpad.net/webupd8team/gnome3/ubuntu precise main ## Gnome Shell
+deb http://192.168.1.2/ppa.launchpad.net/matttbe/ppa/ubuntu precise main ## Matttbe
 
-#deb http://192.168.1.2/ppa.launchpad.net/ailurus/ppa/ubuntu oneiric main
-#deb http://192.168.1.2/ppa.launchpad.net/bisigi/ppa/ubuntu oneiric main
-#deb http://192.168.1.2/ppa.launchpad.net/tualatrix/ubuntu oneiric main
+#deb http://192.168.1.2/ppa.launchpad.net/ailurus/ppa/ubuntu precise main
+#deb http://192.168.1.2/ppa.launchpad.net/bisigi/ppa/ubuntu precise main
+#deb http://192.168.1.2/ppa.launchpad.net/tualatrix/ubuntu precise main
 
 # packages.medibuntu.org
-deb http://192.168.1.2/packages.medibuntu.org/ oneiric free non-free
+deb http://192.168.1.2/packages.medibuntu.org/ precise free non-free
 
 # archive.getdeb.net
-deb http://192.168.1.2/archive.getdeb.net/ubuntu oneiric-getdeb apps
+deb http://192.168.1.2/archive.getdeb.net/ubuntu precise-getdeb apps
