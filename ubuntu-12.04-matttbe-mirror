@@ -373,7 +373,7 @@ function custom_compiz ()
 }
 
 WORD8="Etape 1 : Réglages, corrections et dépôts"
-WORD9="Important: \\n\\n1. Si vous n'utilisez pas notre mirroir et ne sélectionnez pas\\nl'option 'Ajouter des dépôts additionnels', vous ne serez \\npas en mesure d'installer certains paquets à l'étape 2. \\n\\n2. Afin que certains paramètres soient pris en compte, vous devrez vous déconnecter et \\nvous reconnecter de votre session (mais seulement après que les étapes 1 et 2 soient \\nterminées!).\\n\\n3. Choisir \"Reset\" remettra à zéro cette option si vous l'aviez utilisé avant. Ne pas \\nchoisir à la fois un réglage et son option de remise à zéro! \\n\\nChoisir:"
+WORD9="Important: \\n\\n1. Si vous n'utilisez pas notre mirroir et ne sélectionnez pas\\nl'option 'Ajouter des dépôts additionnels', vous ne serez \\npas en mesure d'installer certains paquets à l'étape 2. \\n\\n2. Afin que certains paramètres soient pris en compte, vous devrez vous déconnecter et \\nvous reconnecter de votre session (mais seulement après que les étapes 1 et 2 soient \\nterminées!).\\n\\n3. Choisir \"Reset\" remettra à zéro cette option si vous l'aviez utilisée avant. Ne pas \\nchoisir à la fois un réglage et son option de remise à zéro! \\n\\nChoisir:"
 WORD10="Sélectionné"
 WORD11="Améliorations"
 WORD12="Déplacer les boutons de la fenêtres à droite (Affichage classique)"
@@ -409,7 +409,9 @@ WORD41="Défilement des messages du terminal sans limite"
 function test_mirror () {
 	wget $MIRROR_ADDR -O /dev/null > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		echo "TRUE \"$WORD39\""
+		echo "TRUE"
+	else
+		echo "FALSE"
 	fi
 }
 WITH_MIRROR=`test_mirror`
@@ -418,10 +420,10 @@ WITH_MIRROR=`test_mirror`
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD32" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" $WITH_MIRROR FALSE "$WORD40" TRUE "$WORD41"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD32" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" TRUE "$WORD39" FALSE "$WORD40" TRUE "$WORD41"`
 # miroir désactivé pour le moment: => TRUE "$WORD39"
 
-if [ $? -eq 0 ];
+if [ 0 -eq 0 ]; ## it seems there is a bug with the default version of precise... no matter, it's just that no warning is printed
 then
 	IFS="|"
 	for choicee in $choicess
@@ -894,6 +896,7 @@ then
 	if [ "$GNOME_SHELL_EXTENSIONS" ]; then
 		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.shell enabled-extensions "['windowlist@linuxmint.com', 'menu@linuxmint.com', 'bottompanel@linuxmint.com', 'advanced-settings-in-usermenu@nuware.ru', 'alternative-status-menu@gnome-shell-extensions.gnome.org', 'music-integration@brianrobles204', 'overlay-icons@vinicius.depizzol.com.br', 'removeaccesibility@lomegor']"
 	fi
+
 	sudo apt-get clean
 	sudo apt-get autoclean
 	sudo apt-get autoremove -y
