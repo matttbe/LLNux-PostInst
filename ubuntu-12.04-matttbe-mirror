@@ -725,7 +725,8 @@ then
 		elif [ "$choice" = "Google Earth" ];
 			then
 				sudo echo googleearth shared/accepted-googleearth-eula select true | sudo /usr/bin/debconf-set-selections
-				AddMeApt "deb http://dl.google.com/linux/deb/ testing non-free ## Google Testing Respo"
+				# AddMeApt "deb http://dl.google.com/linux/deb/ testing non-free ## Google Testing Repo"
+				AddMeApt "deb http://dl.google.com/linux/earth/deb/ stable main ## Google Repo"
 				if [ "i686" = `uname -m` ]; then
 					packagesInst="$packagesInst googleearth googleearth-data "
 				else
