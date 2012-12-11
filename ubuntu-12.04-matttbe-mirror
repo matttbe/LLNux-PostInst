@@ -55,9 +55,9 @@ DISTRIBNUM2=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. 
 if test $DISTRIBNUM -ne 12 -o "$DISTRIB" = "quantal"; then
 	echo "WARNING: This script has been made for Ubuntu Precise 12.04! "
 	/usr/bin/zenity --warning --title="WARNING" --text="You are not using Ubuntu 12.04 Precise Pangolin"
-	if test "$DISTRIB" = "quantal"; then
-		DISTRIB=precise
-	fi
+	#if test "$DISTRIB" = "quantal"; then
+	#	DISTRIB=precise
+	#fi
 	sleep 2
 fi
 
@@ -414,7 +414,9 @@ function test_mirror () {
 		echo "FALSE"
 	fi
 }
-WITH_MIRROR=`test_mirror`
+if [ "$DISTRIB" = "precise" ]; then
+	WITH_MIRROR=`test_mirror`
+fi
 
 #gui 1
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
