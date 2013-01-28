@@ -55,10 +55,11 @@ DISTRIBNUM2=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. 
 if test $DISTRIBNUM -ne 12 -o "$DISTRIB" = "quantal"; then
 	echo "WARNING: This script has been made for Ubuntu Precise 12.04! "
 	/usr/bin/zenity --warning --title="WARNING" --text="You are not using Ubuntu 12.04 Precise Pangolin"
-	#if test "$DISTRIB" = "quantal"; then
-	#	DISTRIB=precise
-	#fi
-	sleep 2
+	MIRROR_GOOD_DISTRIB=FALSE
+elif test "$DISTRIB" = "precise"; then
+	MIRROR_GOOD_DISTRIB=TRUE
+else
+	MIRROR_GOOD_DISTRIB=FALSE
 fi
 
 #check if the user is running 32 or 64bit
@@ -422,7 +423,7 @@ fi
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD32" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" TRUE "$WORD39" FALSE "$WORD40" TRUE "$WORD41"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD32" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41"`
 # miroir désactivé pour le moment: => TRUE "$WORD39"
 
 if [ 0 -eq 0 ]; ## it seems there is a bug with the default version of precise... no matter, it's just that no warning is printed
