@@ -923,7 +923,7 @@ then
 	IFS=""
 	sl	# train
 	rm /tmp/testinternet > /dev/null 2>&1;
-	if [ "$WEBPAGE_END" != "" ]; then xdg-open $WEBPAGE_END &; fi
+	if [ "$WEBPAGE_END" != "" ]; then xdg-open "$WEBPAGE_END" ; fi
 else
 	rm /tmp/testinternet > /dev/null 2>&1;
 	echo cancel selected
