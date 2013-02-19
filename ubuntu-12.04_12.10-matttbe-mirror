@@ -52,13 +52,14 @@ DISTRIBNUM=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -
 DISTRIBNUM2=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -f2)
 
 # warning
-if test $DISTRIBNUM -ne 12 -o "$DISTRIB" = "quantal"; then
+if test "$DISTRIB" = "precise"; then
+	MIRROR_GOOD_DISTRIB=TRUE
+elif test $DISTRIBNUM -eq 12 -o "$DISTRIB" = "quantal"; then
+	echo "WARNING: désactivation du miroir"
+	MIRROR_GOOD_DISTRIB=FALSE
+else
 	echo "WARNING: This script has been made for Ubuntu Precise 12.04! "
 	/usr/bin/zenity --warning --title="WARNING" --text="You are not using Ubuntu 12.04 Precise Pangolin"
-	MIRROR_GOOD_DISTRIB=FALSE
-elif test "$DISTRIB" = "precise"; then
-	MIRROR_GOOD_DISTRIB=TRUE
-else
 	MIRROR_GOOD_DISTRIB=FALSE
 fi
 
