@@ -394,8 +394,8 @@ WORD28="Installation et configuration des polices de caractères net (DÉCONSEIL
 WORD29=">> Reset: \"Installation et configuration des polices de caractères net (Firefox inclus)\""
 WORD30="Corrige la lenteur de 'apt-get update' pour les dépôts de Google"
 WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de Google\""
-WORD32="Monter automatiquement les lecteurs NTFS au démarrage"
-WORD33=">> Reset: \"Monter automatiquement les lecteur NTFS au démarrage\""
+#WORD32="Monter automatiquement les lecteurs NTFS au démarrage"
+#WORD33=">> Reset: \"Monter automatiquement les lecteur NTFS au démarrage\""
 WORD34="Ajouter des dépôts additionnels (GetDeb, Medibuntu etc.) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
 WORD35="N'utiliser que la carte graphique intégrée à la carte mère (Intel si GPU Intel + ATI détecté)"
 WORD36="N'utiliser que la carte graphique dédiée (ATI si GPU Intel + ATI)"
@@ -424,7 +424,7 @@ fi
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD32" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41"`
 # miroir désactivé pour le moment: => TRUE "$WORD39"
 
 if [ 0 -eq 0 ]; ## it seems there is a bug with the default version of precise... no matter, it's just that no warning is printed
@@ -552,26 +552,26 @@ then
 		elif [ "$choicee" = "$WORD31" ];
 			then
 			sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1; sudo cp /etc/apt/apt.conf.d/90localsettings /etc/apt/apt.conf.d/90localsettings_back; cat /etc/apt/apt.conf.d/90localsettings_back | sudo sed -e '/^Acquire::http::Pipeline-Depth.*/d' > /etc/apt/apt.conf.d/90localsettings; sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1;
-		elif [ "$choicee" = "$WORD32" ];
-			then
-				sudo apt-get -y --force-yes install ntfs-3g
-
-				if [ $(cat /etc/fstab | grep '^[^#].*ntfs-3g' > /tmp/checkntfs-3g.txt; cat /tmp/checkntfs-3g.txt | wc -l) -gt 0 ];
-				then
-					echo You already have ntfs-3g enabled
-				else
-					NTFSS=$(sudo blkid -c /dev/null -t TYPE=ntfs | cut -d ':' -f 1 > /tmp/checkntfs.txt)
-					while read curline; do
-						echo $curline #debugging
-						dirr=$(echo $curline | cut -c 6- | sed -e 's/\///g')
-						sudo mkdir /media/$dirr
-						NTFSUUID=$(sudo blkid -c /dev/null -t TYPE=ntfs | grep $curline | cut -d '"' -f 4)
-						echo $NTFSUUID #debugging
-						eval "echo UUID=$NTFSUUID	/media/$dirr ntfs-3g	users				0	0" | sudo tee -a /etc/fstab > /dev/null
-					done < /tmp/checkntfs.txt
-					echo Done!
-				fi
-				rm /tmp/checkntfs.txt /tmp/checkntfs-3g.txt > /dev/null 2>&1;
+		#~ elif [ "$choicee" = "$WORD32" ];
+			#~ then
+				#~ sudo apt-get -y --force-yes install ntfs-3g
+#~ 
+				#~ if [ $(cat /etc/fstab | grep '^[^#].*ntfs-3g' > /tmp/checkntfs-3g.txt; cat /tmp/checkntfs-3g.txt | wc -l) -gt 0 ];
+				#~ then
+					#~ echo You already have ntfs-3g enabled
+				#~ else
+					#~ NTFSS=$(sudo blkid -c /dev/null -t TYPE=ntfs | cut -d ':' -f 1 > /tmp/checkntfs.txt)
+					#~ while read curline; do
+						#~ echo $curline #debugging
+						#~ dirr=$(echo $curline | cut -c 6- | sed -e 's/\///g')
+						#~ sudo mkdir /media/$dirr
+						#~ NTFSUUID=$(sudo blkid -c /dev/null -t TYPE=ntfs | grep $curline | cut -d '"' -f 4)
+						#~ echo $NTFSUUID #debugging
+						#~ eval "echo UUID=$NTFSUUID	/media/$dirr ntfs-3g	users				0	0" | sudo tee -a /etc/fstab > /dev/null
+					#~ done < /tmp/checkntfs.txt
+					#~ echo Done!
+				#~ fi
+				#~ rm /tmp/checkntfs.txt /tmp/checkntfs-3g.txt > /dev/null 2>&1;
 		elif [ "$choicee" = "$WORD33" ];
 			then
 			sudo rm /etc/fstab_back > /dev/null 2>&1; sudo cp /etc/fstab /etc/fstab_back; cat /etc/fstab_back | sudo sed -e '/^UUID.*ntfs-3g.*/d' > /etc/fstab; sudo rm /etc/fstab_back > /dev/null 2>&1;
