@@ -35,6 +35,7 @@
 
 
 MIRROR_ADDR="http://192.168.1.2/"
+# WEBPAGE_END="http://www.louvainlinux.be/statistiques-install-party-q2/"
 TRUETYPEPATH="/usr/share/fonts/truetype/"
 ROOT_UID=0
 DIR=$(pwd)
@@ -922,6 +923,7 @@ then
 	IFS=""
 	sl	# train
 	rm /tmp/testinternet > /dev/null 2>&1;
+	if [ "$WEBPAGE_END" != "" ]; then xdg-open $WEBPAGE_END &; fi
 else
 	rm /tmp/testinternet > /dev/null 2>&1;
 	echo cancel selected
