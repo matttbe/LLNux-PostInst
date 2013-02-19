@@ -834,7 +834,7 @@ then
 
 	# Upgrade
 	echo -e "\n\t ====== Dist Upgrade ======\n"
-	sudo apt-get dist-upgrade -y --force-yes
+	sudo apt-get dist-upgrade -y --force-yes || (bPostInstFailed=1 && echo "ERROR")
 
 	# Script vérification
 	echo -e "\n\t ====== Packages verification and installation! =======\n"
@@ -871,10 +871,10 @@ then
 	# sudo xterm -e "sudo sh /home/$ON_USER/install_paquets.sh"	# check packages
 	sudo sh /tmp/matttbe/check_packages.sh # check packages
 	chmod +x /tmp/matttbe/install_packages.sh
-	sudo sh /tmp/matttbe/install_packages.sh # install
+	sudo sh /tmp/matttbe/install_packages.sh || (bPostInstFailed=1 && echo "ERROR INSTALL" && sudo cp /tmp/*.sh .)
 
 #	sudo apt-get install -y --force-yes $packagesInst
-	sudo apt-get install -f -y
+	sudo apt-get install -f -y || (bPostInstFailed=1 && echo "ERROR: install empty")
 	if test -e "/usr/share/doc/libdvdread4/install-css.sh"; then
 		sudo /usr/share/doc/libdvdread4/install-css.sh	#dvd
 	fi
@@ -887,7 +887,7 @@ then
 			fi
 		done
 		if [ "$packageToRemove" != "" ]; then
-			sudo apt-get purge -y --force-yes $packageToRemove
+			sudo apt-get purge -y --force-yes $packageToRemove || (bPostInstFailed=1 && echo "ERROR purge: $packageToRemove")
 		fi
 	fi
 	#if test -d /usr/share/doc/simplecommeubuntu; then
@@ -902,9 +902,9 @@ then
 		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.shell enabled-extensions "['windowlist@linuxmint.com', 'menu@linuxmint.com', 'bottompanel@linuxmint.com', 'advanced-settings-in-usermenu@nuware.ru', 'alternative-status-menu@gnome-shell-extensions.gnome.org', 'music-integration@brianrobles204', 'overlay-icons@vinicius.depizzol.com.br', 'removeaccesibility@lomegor']"
 	fi
 
-	sudo apt-get clean
-	sudo apt-get autoclean
-	sudo apt-get autoremove -y
+	sudo apt-get clean || (bPostInstFailed=1 && echo "ERROR clean")
+	sudo apt-get autoclean || (bPostInstFailed=1 && echo "ERROR autoclean")
+	sudo apt-get autoremove -y || (bPostInstFailed=1 && echo "ERROR autoremove")
 	if [ "$MIRROR" = "yes" ]; then
 		OurMirror "down"
 		echo "Utilisation des serveurs externes"
@@ -914,7 +914,11 @@ then
 	lang=${LANG%_*}
 	text="Installation terminée, merci d'avoir utilisé ce script"
 	(mplayer "http://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&q=${text}" &> /dev/null &)
-	/usr/bin/zenity --info --text="Installation terminée, merci d'avoir utilisé ce script!"
+	if [ "$bPostInstFailed" = "1" ]; then
+		/usr/bin/zenity --error --text="Installation terminée, ERREUR détectée!"
+	else
+		/usr/bin/zenity --info --text="Installation terminée, merci d'avoir utilisé ce script!"
+	fi
 	IFS=""
 	sl	# train
 	rm /tmp/testinternet > /dev/null 2>&1;
