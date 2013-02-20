@@ -407,6 +407,9 @@ WORD38="N'utiliser que la carte graphique intégrée à la carte mère (forcer -
 WORD39="Ajouter notre miroir (32 and 64bits only)"
 WORD40="Télécharger un centre de logiciels dédié aux jeux"
 WORD41="Défilement des messages du terminal sans limite"
+WORD41BIS=">> Reset: \"Défilement des messages du terminal sans limite\""
+WORD44="Défilement de la souris à deux doigts"
+WORD45=">> Reset: \"Défilement de la souris à deux doigts\""
 
 
 function test_mirror () {
@@ -425,7 +428,7 @@ fi
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD33" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" FALSE "$WORD28" FALSE "$WORD29" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD34" TRUE "$WORD35" FALSE "$WORD36" TRUE "$WORD37" FALSE "$WORD43" TRUE "$WORD42" FALSE "$WORD38" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD41BIS" TRUE "$WORD44" FALSE "$WORD45"`
 # miroir désactivé pour le moment: => TRUE "$WORD39"
 
 if [ 0 -eq 0 ]; ## it seems there is a bug with the default version of precise... no matter, it's just that no warning is printed
@@ -678,6 +681,17 @@ then
 			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/foreground_color' --type string '#FFFFFFFFFFFF'
 			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/background_type' --type string 'transparent'
 			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/background_darkness' --type float 0.9
+		elif [ "$choicee" = "$WORD41BIS" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool false # (défilement)
+		elif [ "$choicee" = "$WORD44" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad scroll-method two-finger-scrolling
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad horiz-scroll-enabled true
+		elif [ "$choicee" = "$WORD45" ];
+			then
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad scroll-method edge-scrolling
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad horiz-scroll-enabled false
 		fi
 	done
 	sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings-data-convert
