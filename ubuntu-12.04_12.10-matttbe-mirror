@@ -448,9 +448,11 @@ then
 		elif [ "$choicee" = "$WORD16" ];
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/nautilus/desktop/volumes_visible false
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.nautilus.desktop volumes-visible false
 		elif [ "$choicee" = "$WORD17" ];
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/nautilus/desktop/volumes_visible true
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.nautilus.desktop volumes-visible true
 		elif [ "$choicee" = "$WORD18" ];
 			then
 			sudo -u lightdm gconftool-2 --set /desktop/gnome/sound/event_sounds --type bool false
@@ -475,6 +477,8 @@ then
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/buttons_have_icons --type bool false
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/menus_have_icons --type bool false
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface buttons-have-icons false
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface menus-have-icons false
 		elif [ "$choicee" = "$WORD26" ];
 			then
 			sudo apt-get purge -y --force-yes ubuntu-docs
