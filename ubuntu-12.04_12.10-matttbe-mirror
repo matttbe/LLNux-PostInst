@@ -762,7 +762,7 @@ then
 				packagesInst="$packagesInst google-talkplugin "
 		elif [ "$choice" = "Outils de développement" ];
 			then
-				packagesInst="$packagesInst build-essential automake make patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr "
+				packagesInst="$packagesInst build-essential automake make patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr mercurial geany geany-plugins "
 		elif [ "$choice" = "Outils de packaging Debian-Ubuntu" ];
 			then
 				packagesInst="$packagesInst build-essential automake make checkinstall patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr debhelper pbuilder cdbs quilt fakeroot xutils lintian dh-make ubuntu-dev-tools "
@@ -770,7 +770,7 @@ then
 			then
 				echo "deb http://linux.dropbox.com/ubuntu $DISTRIB main" > /home/$ON_USER/dropbox.list
 				sudo mv /home/$ON_USER/dropbox.list /etc/apt/sources.list.d/dropbox.list
-				packagesInst="$packagesInst nautilus-dropbox "
+				packagesInst="$packagesInst dropbox nautilus-dropbox "
 		elif [ "$choice" = "LaTeX" ];
 			then
 				packagesInst="$packagesInst texlive dvipdfmx lmodern perl-tk texlive-latex-extra latex-beamer latex-xcolor texlive-science texlive-generic-extra texlive-fonts-recommended texlive-pictures texmaker latexila rubber chktex pstoedit python-poppler gedit-latex-plugin texlive-lang-french latexila "
@@ -784,7 +784,7 @@ then
 				sudo echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo /usr/bin/debconf-set-selections
 				packagesInst="$packagesInst ubuntu-restricted-addons ubuntu-restricted-extras gstreamer0.10-ffmpeg gstreamer0.10-plugins-bad gstreamer0.10-plugins-bad-multiverse gstreamer0.10-plugins-ugly gstreamer0.10-plugins-ugly-multiverse libdvdnav4 libdvdread4 libdvdcss2 libxine1-ffmpeg rar unrar p7zip-full p7zip-rar unace ttf-mscorefonts-installer ttf-liberation mencoder adobe-flashplugin "
 				if [ "i686" = `uname -m` ]; then
-					packagesInst="$packagesInst gstreamer0.10-pitfdll w32codecs "
+					packagesInst="$packagesInst w32codecs "
 				else
 					packagesInst="$packagesInst w64codecs "
 				fi
