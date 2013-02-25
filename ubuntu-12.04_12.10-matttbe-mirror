@@ -750,11 +750,7 @@ then
 				sudo echo googleearth shared/accepted-googleearth-eula select true | sudo /usr/bin/debconf-set-selections
 				# AddMeApt "deb http://dl.google.com/linux/deb/ testing non-free ## Google Testing Repo"
 				AddMeApt "deb http://dl.google.com/linux/earth/deb/ stable main ## Google Repo"
-				if [ "i686" = `uname -m` ]; then
-					packagesInst="$packagesInst googleearth googleearth-data "
-				else
-					packagesInst="$packagesInst ia32-libs googleearth googleearth-data "
-				fi
+				packagesInst="$packagesInst googleearth googleearth-data "
 		elif [ "$choice" = "Google Talk plugin" ];
 			then
 				GT_LIST="/etc/apt/sources.list.d/google-talkplugin.list"
@@ -763,11 +759,7 @@ then
 				echo "### THIS FILE IS AUTOMATICALLY CONFIGURED ###" | sudo tee -a $GT_LIST > /dev/null
 				echo "# You may comment out this entry, but any other modifications may be lost." | sudo tee -a $GT_LIST > /dev/null
 				echo "deb http://dl.google.com/linux/talkplugin/deb/ stable main" | sudo tee -a $GT_LIST > /dev/null
-				if [ "i686" = `uname -m` ]; then
-					packagesInst="$packagesInst google-talkplugin "
-				else
-					packagesInst="$packagesInst ia32-libs google-talkplugin "
-				fi
+				packagesInst="$packagesInst google-talkplugin "
 		elif [ "$choice" = "Outils de développement" ];
 			then
 				packagesInst="$packagesInst build-essential automake make patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr "
