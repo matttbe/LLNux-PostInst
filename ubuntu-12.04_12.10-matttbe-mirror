@@ -885,7 +885,7 @@ then
 		fi
 	done
 	## Une fois la liste vérifiée, on écrase le fichier avec la commande minimale pour la suite
-	echo "sudo apt-get install -y --force-yes -m $paquetsOK
+	echo "sudo apt-get install -y --force-yes -m $paquetsOK || exit 1
 	# Paquets mauvais: $paquetsNOTok" > /tmp/matttbe/install_packages.sh
 	#sudo apt-get install -y --force-yes -m $paquetsOK' > /tmp/matttbe/check_packages.sh
 	chmod +x /tmp/matttbe/check_packages.sh
