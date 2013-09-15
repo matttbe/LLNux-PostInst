@@ -638,7 +638,7 @@ then
 				AddMeApt "${ARRAY[${i}]}"
 			done
 			testConnection
-			rm /etc/apt/sources.list.d/medibuntu.list > /dev/null 2>&1;
+			# rm /etc/apt/sources.list.d/medibuntu.list > /dev/null 2>&1;
 			rm /etc/apt/sources.list.d/getdeb.list > /dev/null 2>&1; #delete getdeb repos if they were placed in a different location (not sources.list) because we'll add them anyway - fix for not getting double repos
 			# wget -q -O- $mediserv/medibuntu-key.gpg | apt-key add -
 			#sudo apt-get --quiet update && sudo apt-get --yes --quiet --allow-unauthenticated install medibuntu-keyring && sudo apt-get --quiet update
@@ -649,13 +649,13 @@ then
 		elif [ "$choicee" = "$WORD36" ];
 			then
 			vgaswitchroo "ON" "DDIS"
-		elif [ "$choicee" = "$WORD37" ];
+		elif [ "$choicee" = "$WORD37" ]; ## TODO Ubuntu >= 13.10: utiliser nvidia-prime dans les dépôts officiels
 			then
 			bumblebee
 		elif [ "$choicee" = "$WORD43" ];
 			then
 			bumblebee "FORCE"
-		elif [ "$choicee" = "$WORD42" ];
+		elif [ "$choicee" = "$WORD42" ]; ## TODO plus nécessaire pour Ubuntu >= 13
 			then
 			energy_grub
 		elif [ "$choicee" = "$WORD38" ];
@@ -705,7 +705,7 @@ else
 fi
 
 #gui 2
-choices=`/usr/bin/zenity --title="Etape 2: installation des paquets" --width=800 --height=600 --text="Choisissez les paquets à installer:" --list --column="Sélectionné" --column="Paquet" --column="Description" --checklist TRUE "Cairo-Dock" "Un environnement et une barre des tâches (dock) sympa et pratique" FALSE "Cairo-Dock Weekly" "Un environnement et une barre des tâches sympa et pratique (Weekly version)" FALSE "Chromium Browser" "Navigateur open source" FALSE "Thèmes supplémentaires" "Installation des thèmes de community and Bisigi" FALSE "Evolution" "Client E-mail" FALSE "Dropbox" "Application qui synchronise un dossier avec des serveurs sur le cloud (Gratuit, 2Go)" FALSE "Google Earth" "Google Earth vous permet de voyager partout sur Terre" FALSE "Outils de développement" "De build-essential à Subversion, GIT et autres" FALSE "Outils de packaging Debian-Ubuntu" "Pour la construction de paquets et développement pour Debian et Ubuntu" FALSE "Emesene" "MSN client" FALSE "Pidgin" "Client de messageries instantanées" TRUE "Inkscape" "Editeur d'images vectorielles" TRUE "Gimp" "Editeur complet d'images bitmap" FALSE "LaTeX" "LaTeX (binaires, modules et éditeur)" FALSE "aMule" "eMule" FALSE "Eclipse" "L'éditeur pour développeur par IBM" TRUE "Misc" "Quelques utilitaires (convertir du texte, de la musique, renommer plusieurs fichiers, etc.)" TRUE "Environnement de bureau Gnome" "Gnome-Shell et le Gnome-Panel" FALSE "Wine" "Lancer des applications Windows sous Linux" TRUE "VLC" "Lecteur de vidéos" TRUE "MPlayer" "Lecteur de vidéos (MPlayer GUI)" "TRUE" "Codecs et extras" "Codecs (multimedia, java, flash), support d'archives supplémentaires, support DVD et fonts" TRUE "Ubuntu-Tweak" "Outil d'amélioration d'Ubuntu et plein de dépôts additionnels (PPAs) (Attention, beta)" TRUE "CCSM et extra plugins" "CompizConfig Settings Manager et extra plugins" "FALSE" "Skype" "Application VoIP chat" "TRUE" "OpenShot" "Éditeur de vidéo simple et puissant" "FALSE" "Audacity" "Éditeur audio simple et puissant" "FALSE" "Blender" "Logiciel complet et puissant de création de vidéos animée" "TRUE" "Google Talk plugin" "Plugin Google Talk pour le navigateur (audio et vidéo chat dans GMail et Google Plus)" "TRUE" "Economie d'énergie" "Deux outils (powertop et jupiter) pour la gestion de l'énergie des ordinateurs portables" "FALSE" "GThumb" "Visionneur d'image rapide avec plusieurs options intéressantes" "FALSE" "EasyTag" "Éditeur performant de tags pour les fichiers audio" "FALSE" "Gobby" "Editeur de texte collaboratif (édition à plusieurs en même temps)" "FALSE" "Hugin" "Créateur de panorama à partir de plusieurs photos" "FALSE" "FileZilla" "Client FTP réputé" "TRUE" "Synapse" "Recherche rapide d'un peu de tout" "FALSE" "EasyStroke" "Contrôle du bureau avec des mouvements de souris" "FALSE" "ZRam" "Utiliser ZRam (compression de la mémoire ram peu utilisée): très conseillé pour les PCs avec 2 Go de Ram et moins)"`
+choices=`/usr/bin/zenity --title="Etape 2: installation des paquets" --width=800 --height=600 --text="Choisissez les paquets à installer:" --list --column="Sélectionné" --column="Paquet" --column="Description" --checklist TRUE "Cairo-Dock" "Un environnement et une barre des tâches (dock) sympa et pratique" FALSE "Cairo-Dock Weekly" "Un environnement et une barre des tâches sympa et pratique (Weekly version)" FALSE "Chromium Browser" "Navigateur open source" FALSE "Thèmes supplémentaires" "Installation des thèmes de community and Bisigi" FALSE "Evolution" "Client E-mail" FALSE "Dropbox" "Application qui synchronise un dossier avec des serveurs sur le cloud (Gratuit, 2Go)" FALSE "Google Earth" "Google Earth vous permet de voyager partout sur Terre" FALSE "Outils de développement" "De build-essential à Subversion, GIT et autres" FALSE "Outils de packaging Debian-Ubuntu" "Pour la construction de paquets et développement pour Debian et Ubuntu" FALSE "Emesene" "MSN client" FALSE "Pidgin" "Client de messageries instantanées" TRUE "Inkscape" "Editeur d'images vectorielles" TRUE "Gimp" "Editeur complet d'images bitmap" FALSE "LaTeX" "LaTeX (binaires, modules et éditeur)" FALSE "aMule" "eMule" FALSE "Eclipse" "L'éditeur pour développeur par IBM" TRUE "Misc" "Quelques utilitaires (convertir du texte, de la musique, renommer plusieurs fichiers, etc.)" TRUE "Environnement de bureau Gnome" "Gnome-Shell et le Gnome-Panel" FALSE "Wine" "Lancer des applications Windows sous Linux" TRUE "VLC" "Lecteur de vidéos" TRUE "MPlayer" "Lecteur de vidéos (MPlayer GUI)" TRUE "Codecs et extras" "Codecs (multimedia, java, flash), support d'archives supplémentaires, support DVD et fonts" TRUE "Ubuntu-Tweak" "Outil d'amélioration d'Ubuntu et plein de dépôts additionnels (PPAs) (Attention, beta)" TRUE "CCSM et extra plugins" "CompizConfig Settings Manager et extra plugins" FALSE "Skype" "Application VoIP chat" TRUE "OpenShot" "Éditeur de vidéo simple et puissant" FALSE "Audacity" "Éditeur audio simple et puissant" FALSE "Blender" "Logiciel complet et puissant de création de vidéos animée" TRUE "Google Talk plugin" "Plugin Google Talk pour le navigateur (audio et vidéo chat dans GMail et Google Plus)" TRUE "Economie d'énergie" "Deux outils (powertop et jupiter) pour la gestion de l'énergie des ordinateurs portables" FALSE "GThumb" "Visionneur d'image rapide avec plusieurs options intéressantes" FALSE "EasyTag" "Éditeur performant de tags pour les fichiers audio" FALSE "Gobby" "Editeur de texte collaboratif (édition à plusieurs en même temps)" FALSE "Hugin" "Créateur de panorama à partir de plusieurs photos" FALSE "FileZilla" "Client FTP réputé" TRUE "Synapse" "Recherche rapide d'un peu de tout" FALSE "EasyStroke" "Contrôle du bureau avec des mouvements de souris" FALSE "ZRam" "Utiliser ZRam (compression de la mémoire ram peu utilisée): très conseillé pour les PCs avec 2 Go de Ram et moins)"`
 # FALSE "Java (Sun)" "La version officielle de Java (Sun)"
 
 packagesInst=""
@@ -765,6 +765,7 @@ then
 				echo "# You may comment out this entry, but any other modifications may be lost." | sudo tee -a $GT_LIST > /dev/null
 				echo "deb http://dl.google.com/linux/talkplugin/deb/ stable main" | sudo tee -a $GT_LIST > /dev/null
 				packagesInst="$packagesInst google-talkplugin "
+				# TODO: check if it's ok for Ubuntu >= 13. Or install: https://dl.google.com/linux/direct/google-talkplugin_current_i386.deb or https://dl.google.com/linux/direct/google-talkplugin_current_amd64.deb
 		elif [ "$choice" = "Outils de développement" ];
 			then
 				packagesInst="$packagesInst build-essential automake make patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr mercurial geany geany-plugins "
@@ -819,12 +820,12 @@ then
 				fi
 				packagesInst="$packagesInst powertop jupiter "
 				# TODO: for Ubuntu 13.04 Raring: jupiter no more needed
-		elif [ "$choice" = "ZRam" ];
+		elif [ "$choice" = "ZRam" ]; ## TODO Ubuntu 13: utiliser zram des dépôts
 			then
 				AddMeApt "deb http://ppa.launchpad.net/shnatsel/zram/ubuntu $DISTRIB main ## ZRam"
 				packagesInst="$packagesInst zramswap-enabler "
 		elif [ "$choice" = "Environnement de bureau Gnome" ];
-			then
+			then # TODO: update for Ubuntu 13 (or only installed gnome-shell + gnome-tweak-tool + gnome-classic)
 				if [ "$MIRROR" != "yes" ]; then
 					AddMeApt "deb http://ppa.launchpad.net/webupd8team/gnome3/ubuntu $DISTRIB main ## Gnome3"
 				fi
