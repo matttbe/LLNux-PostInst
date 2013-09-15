@@ -23,7 +23,7 @@ deb http://192.168.1.2/ppa.launchpad.net/matttbe/ppa/ubuntu precise main ## Matt
 #deb http://192.168.1.2/ppa.launchpad.net/tualatrix/ubuntu precise main
 
 # packages.medibuntu.org
-deb http://192.168.1.2/packages.medibuntu.org/ precise free non-free
+# deb http://192.168.1.2/packages.medibuntu.org/ precise free non-free
 
 # archive.getdeb.net
 deb http://192.168.1.2/archive.getdeb.net/ubuntu precise-getdeb apps

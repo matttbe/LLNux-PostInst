@@ -28,7 +28,7 @@ deb http://ppa.launchpad.net/matttbe/ppa/ubuntu precise main ## Matttbe
 #deb http://ppa.launchpad.net/ailurus/ppa/ubuntu precise main ## Ailurus
 
 # packages.medibuntu.org
-deb http://packages.medibuntu.org/ precise free non-free
+# deb http://packages.medibuntu.org/ precise free non-free
 
 # archive.getdeb.net
 deb http://archive.getdeb.net/ubuntu precise-getdeb apps
