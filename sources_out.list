@@ -18,8 +18,8 @@ deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu precise main ## Cairo-Do
 deb http://ppa.launchpad.net/latexila/ppa/ubuntu precise main ## LaTeXila
 deb http://ppa.launchpad.net/tiheum/equinox/ubuntu precise main ## Thèmes equinox
 deb http://ppa.launchpad.net/tualatrix/ppa/ubuntu precise main ## Ubuntu-Tweak
-deb http://ppa.launchpad.net/webupd8team/jupiter/ubuntu precise main ## Jupiter
-deb http://ppa.launchpad.net/webupd8team/gnome3/ubuntu precise main ## Gnome Shell
+deb http://ppa.launchpad.net/webupd8team/jupiter/ubuntu precise main ## Jupiter    ## TODO: rm Ubunut 13+
+deb http://ppa.launchpad.net/webupd8team/gnome3/ubuntu precise main ## Gnome Shell ## TODO: rm Ubunut 13+
 deb http://ppa.launchpad.net/matttbe/ppa/ubuntu precise main ## Matttbe
 
 #deb http://ppa.launchpad.net/tualatrix/ubuntu precise main ## ubuntu-tweak
