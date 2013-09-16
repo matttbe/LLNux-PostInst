@@ -29,6 +29,8 @@ deb http://ppa.launchpad.net/matttbe/ppa/ubuntu precise main ## Matttbe
 
 # packages.medibuntu.org
 # deb http://packages.medibuntu.org/ precise free non-free
+# dvdcss
+deb http://download.videolan.org/pub/debian/stable /  ## libdvdcss
 
 # archive.getdeb.net
 deb http://archive.getdeb.net/ubuntu precise-getdeb apps

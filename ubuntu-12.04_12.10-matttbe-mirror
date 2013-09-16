@@ -627,7 +627,7 @@ then
 			# sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*medibuntu.*precise free non-free/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_medibuntu > /dev/null 2>&1; sleep 1
 			#sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*getdeb.*precise-getdeb apps/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_getdeb > /dev/null 2>&1; sleep 1
 			#sleep 1; cp /etc/apt/sources.list /etc/apt/sources.list_empty; cat /etc/apt/sources.list_empty | sed '/^$/d' > /etc/apt/sources.list; sleep 1; rm /etc/apt/sources.list_empty > /dev/null 2>&1; #remove empty lines in sources.list
-			ARRAY=( "deb http://archive.canonical.com/ubuntu $DISTRIB partner ## Canonical" "deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu $DISTRIB main ## Cairo-Dock-PPA" "deb http://ppa.launchpad.net/matttbe/ppa/ubuntu $DISTRIB main ## Matttbe" $getdebserver )
+			ARRAY=( "deb http://archive.canonical.com/ubuntu $DISTRIB partner ## Canonical" "deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu $DISTRIB main ## Cairo-Dock-PPA" "deb http://ppa.launchpad.net/matttbe/ppa/ubuntu $DISTRIB main ## Matttbe" "deb http://download.videolan.org/pub/debian/stable / ## dvdcss" $getdebserver )
 			# $medibuntuserver
 			ELEMENTS=${#ARRAY[@]}
 			# "deb http://ppa.launchpad.net/ailurus/ppa/ubuntu $DISTRIB main ## Ailurus"
