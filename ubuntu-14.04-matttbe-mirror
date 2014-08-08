@@ -578,10 +578,6 @@ then
 					packagesInst="$packagesInst libreoffice-l10n-fr language-pack-gnome-fr language-support-writing-fr aspell-fr "
 				fi
 			then
-		elif [ "$choice" = "ZRam" ]; ## TODO Ubuntu 13: utiliser zram des dépôts
-			then
-				AddMeApt "deb http://ppa.launchpad.net/shnatsel/zram/ubuntu $DISTRIB main ## ZRam"
-				packagesInst="$packagesInst zramswap-enabler "
 		elif [ "$choice" = "Steam" ]; ## TODO Ubuntu 13: check dépôt + install, que pour precise??
 			then
 				if [ $(uname -i) = 'i386' ]; then
@@ -590,6 +586,7 @@ then
 					wget http://repo.steampowered.com/steam/archive/precise/steam_latest.deb
 				fi
 				INSTALL_STEAM="steam_latest.deb"
+				packagesInst="$packagesInst zram-config "
 		elif [ "$choice" = "Environnement de bureau Gnome" ];
 			then
 				packagesInst="$packagesInst gnome-panel gnome-shell gnome-tweak-tool "
