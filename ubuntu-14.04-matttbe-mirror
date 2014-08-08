@@ -590,6 +590,11 @@ then
 				if [ `lspci | grep VGA | grep -ci nvidia` -ge 1 -a `lspci -vnn | grep -c '\''[030[02]\]'` -ge 2 ]; then
 					packagesInst="$packagesInst nvidia-prime "
 				fi
+		elif [ "$choice" = "Pipelight" ];
+			then
+				AddMeApt "deb http://ppa.launchpad.net/pipelight/stable/ubuntu $DISTRIB main ## Pipelight"
+				PIPELIGHT="1"
+				packagesInst="$packagesInst pipelight-multi "
 		else
 				choiceLOW=`echo $choice | tr '[:upper:]' '[:lower:]'`
 				packagesInst="$packagesInst $choiceLOW "
@@ -688,6 +693,10 @@ then
 	if [ "$PEPPER" = "1" ]; then
 		sudo update-pepperflashplugin-nonfree --install
 	fi
+
+	if [ "$PIPELIGHT" = "1" ]; then
+		sudo pipelight-plugin --enable silverlight
+		sudo pipelight-plugin --enable widevine
 	fi
 
 	###########
