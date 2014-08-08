@@ -577,15 +577,8 @@ then
 				if [ "`echo $LANG |cut -d_ -f1`" = "fr" ]; then
 					packagesInst="$packagesInst libreoffice-l10n-fr language-pack-gnome-fr language-support-writing-fr aspell-fr "
 				fi
+		elif [ "$choice" = "ZRam" ];
 			then
-		elif [ "$choice" = "Steam" ]; ## TODO Ubuntu 13: check dépôt + install, que pour precise??
-			then
-				if [ $(uname -i) = 'i386' ]; then
-					wget http://repo.steampowered.com/steam/archive/precise/steam_latest.deb
-				elif [ $(uname -i) = 'x86_64' ]; then
-					wget http://repo.steampowered.com/steam/archive/precise/steam_latest.deb
-				fi
-				INSTALL_STEAM="steam_latest.deb"
 				packagesInst="$packagesInst zram-config "
 		elif [ "$choice" = "Environnement de bureau Gnome" ];
 			then
