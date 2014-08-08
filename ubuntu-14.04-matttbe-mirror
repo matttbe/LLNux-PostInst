@@ -29,8 +29,6 @@
 #Credits:
 #based on the idea of: http://czytelnia.ubuntu.pl/index.php/2009/11/03/skrypt-ulatwiajacy-konfiguracje-ubuntu-9-10-karmic-koala/, but Ubuntu Start is a completely re-written script with lots of new features.
 
-# TODO: translations...
-
 
 MIRROR_ADDR="http://192.168.1.2/"
 # WEBPAGE_END="http://www.louvainlinux.be/statistiques-install-party-q2/"
@@ -39,7 +37,7 @@ ROOT_UID=0
 DIR=$(pwd)
 
 
-#running gconf-tool2 with "sudo" fails to set the options for the current user so this tweak makes it possible to run sudo for gconf-tool2 and change the setting for the current user, not the root user
+#running gconf-tool2/dconf with "sudo" fails to set the options for the current user so this tweak makes it possible to run sudo for gconf-tool2 and change the setting for the current user, not the root user
 ON_USER=$(echo ~ | awk -F'/' '{ print $1 $2 $3 }' | sed 's/home//g')
 export $(grep -v "^#" /home/$ON_USER/.dbus/session-bus/`cat /var/lib/dbus/machine-id`-0)
 if sudo -u $ON_USER test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
@@ -67,7 +65,7 @@ elif [ "x86_64" = `uname -m` ]; then
 	echo "Using `cat /etc/issue.net` x68_64 (amd64) - [ OK ]"
 	arch=amd64
 else
-	/usr/bin/zenity --warning --title="$WORD1" --text="$WORD2"
+	/usr/bin/zenity --warning --title="Architecture not supported" --text="Your architecture is not supported"
 	echo You are not using `cat /etc/issue.net` 32 or 64bits, exiting
 	exit
 fi
@@ -78,12 +76,10 @@ if [ "$UID" -ne "$ROOT_UID" ];
 	echo ""
 	echo "Vous devez lancer ce script avec les droits de l'administrateur."
 	echo ""
-	echo "Tentative de relancement"
-	echo "Merci d'entrer votre mot de passe (c'est invisible!) "
-	# /usr/bin/gksu "`pwd`/./`basename $0`"
-	sudo "./`basename $0`"
+	echo "Tentative de relancement."
+	echo "Merci d'entrer votre mot de passe ci-dessous (les caractères tapés seront invisibles, il n'y aura pas d'astérisque pour des raisons de sécurité)"
 	echo ""
-	echo "Merci de relancer le script avec les droits root sudo ./`basename $0`"
+	sudo "./`basename $0`"
 	exit
 fi
 
@@ -99,6 +95,7 @@ if ps -U root -u root u | grep $lock | grep -v grep > /dev/null;
 fi
 done
 
+# force port 80, the default port (11371) is maybe blocked
 function addppakey()
 {
 	if test -f "$DIR/keys.gpg"; then
@@ -748,7 +745,6 @@ then
 		elif [ "$choice" = "Google Earth" ];
 			then
 				sudo echo googleearth shared/accepted-googleearth-eula select true | sudo /usr/bin/debconf-set-selections
-				# AddMeApt "deb http://dl.google.com/linux/deb/ testing non-free ## Google Testing Repo"
 				AddMeApt "deb http://dl.google.com/linux/earth/deb/ stable main ## Google Repo"
 				packagesInst="$packagesInst googleearth googleearth-data "
 		elif [ "$choice" = "Google Talk plugin" ];
@@ -845,8 +841,10 @@ then
 		packagesInst="$packagesInst bumblebee bumblebee-nvidia "
 	fi
 
-#installation
-# 	/usr/bin/zenity --info --text="Start the Installation?"
+	##################
+	## Installation ##
+	##################
+
 	testConnection # connexion
 	testKeyServer	# keys
 
@@ -901,8 +899,14 @@ then
 	chmod +x /tmp/matttbe/install_packages.sh
 	sudo sh /tmp/matttbe/install_packages.sh || (bPostInstFailed=1 && echo "ERROR INSTALL" && sudo cp /tmp/*.sh .)
 
-#	sudo apt-get install -y --force-yes $packagesInst
+
 	sudo apt-get install -f -y || (bPostInstFailed=1 && echo "ERROR: install empty")
+
+
+	##################
+	## POST Install ##
+	##################
+
 	if test -e "/usr/share/doc/libdvdread4/install-css.sh"; then
 		sudo /usr/share/doc/libdvdread4/install-css.sh	#dvd
 	fi
@@ -913,8 +917,8 @@ then
 		sudo apt-get install -fy
 		rm "$INSTALL_STEAM"
 	fi
-#cleaning up
-	if [ "$LATEX_DOC_REMOVE" = "Oui" ]; then
+
+	if [ "$LATEX_DOC_REMOVE" = "Oui" ]; then # CLEAN
 		packageToRemove=""
 		for i in "texlive-latex-extra-doc texlive-science-doc texlive-fonts-recommended-doc texlive-pictures-doc"; do
 			if test -d /usr/share/doc/$i; then
@@ -925,10 +929,6 @@ then
 			sudo apt-get purge -y --force-yes $packageToRemove || (bPostInstFailed=1 && echo "ERROR purge: $packageToRemove")
 		fi
 	fi
-	#if test -d /usr/share/doc/simplecommeubuntu; then
-	#	cp /usr/share/doc/simplecommeubuntu/*.pdf.gz /home/$ON_USER/Bureau/
-	#	gzip -d /home/$ON_USER/Bureau/*.pdf.gz
-	#fi
 	if [ "$BUMBLEBEE_MOD" = "1" ]; then
 		sudo usermod -a -G bumblebee $ON_USER
 	fi
@@ -936,6 +936,10 @@ then
 	if [ "$GNOME_SHELL_EXTENSIONS" ]; then
 		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.shell enabled-extensions "['windowlist@linuxmint.com', 'menu@linuxmint.com', 'bottompanel@linuxmint.com', 'advanced-settings-in-usermenu@nuware.ru', 'alternative-status-menu@gnome-shell-extensions.gnome.org', 'music-integration@brianrobles204', 'overlay-icons@vinicius.depizzol.com.br', 'removeaccesibility@lomegor']"
 	fi
+
+	###########
+	## CLEAN ##
+	###########
 
 	sudo apt-get clean || (bPostInstFailed=1 && echo "ERROR clean")
 	sudo apt-get autoclean || (bPostInstFailed=1 && echo "ERROR autoclean")
@@ -945,7 +949,11 @@ then
 		echo "Utilisation des serveurs externes"
 		sudo apt-get update
 	fi
-#notices
+
+	###################
+	## Notifications ##
+	###################
+
 	lang=${LANG%_*}
 	text="Installation terminée, merci d'avoir utilisé ce script"
 	(mplayer "http://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&q=${text}" &> /dev/null &)
