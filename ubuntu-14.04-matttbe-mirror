@@ -328,8 +328,6 @@ WORD10="Sélectionné"
 WORD11="Améliorations"
 WORD12="Déplacer les boutons de la fenêtres à droite (Affichage classique)"
 WORD13=">> Reset: \"Déplacer les boutons de la fenêtres à droite\""
-WORD14="Changer le comportement du Gestionnaire de Mises à jour à la manière de Jaunty (auto launch)"
-WORD15=">> Reset: \"Changer le comportement du Gestionnaire de Mises à jour à la manière de Jaunty\""
 WORD16="Supprimer les icônes des lecteurs montés sur le Bureau"
 WORD17=">> Reset: \"Supprimer les icônes des lecteurs montés sur le Bureau\""
 WORD18="Désactiver le son de connexion de LightDM (LightDM = écran de connexion)"
@@ -382,12 +380,6 @@ then
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --type string --set /apps/metacity/general/button_layout "close,minimize,maximize:"
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.wm.preferences "close,minimize,maximize:"
-		elif [ "$choicee" = "$WORD14" ];
-			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/update-notifier/auto_launch false
-		elif [ "$choicee" = "$WORD15" ];
-			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/update-notifier/auto_launch true
 		elif [ "$choicee" = "$WORD16" ]; # volumes: icons in desktop
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/nautilus/desktop/volumes_visible false
