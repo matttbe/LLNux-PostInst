@@ -1,36 +1,20 @@
-# deb cdrom:[Ubuntu 10.10 _precise Meerkat_ - Release i386 (20101007)]/ precise main restricted
+# deb cdrom:[Ubuntu 10.10 _trusty Meerkat_ - Release i386 (20101007)]/ trusty main restricted
 # See http://help.ubuntu.com/community/UpgradeNotes for how to upgrade to
 # newer versions of the distribution.
 
 # be.archive.ubuntu.com
-deb http://be.archive.ubuntu.com/ubuntu/ precise main restricted universe multiverse
-deb http://be.archive.ubuntu.com/ubuntu/ precise-updates main restricted universe multiverse
-deb http://be.archive.ubuntu.com/ubuntu/ precise-security main restricted universe multiverse
+deb http://be.archive.ubuntu.com/ubuntu/ trusty main restricted universe multiverse
+deb http://be.archive.ubuntu.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb http://be.archive.ubuntu.com/ubuntu/ trusty-security main restricted universe multiverse
 
 # archive.canonical.com
-deb http://archive.canonical.com/ubuntu precise partner
+deb http://archive.canonical.com/ubuntu trusty partner
 
 # extras.ubuntu.com
-deb http://extras.ubuntu.com/ubuntu precise main
+deb http://extras.ubuntu.com/ubuntu trusty main
 
 # ppa.launchpad.net
-deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu precise main ## Cairo-Dock
-deb http://ppa.launchpad.net/latexila/ppa/ubuntu precise main ## LaTeXila
-deb http://ppa.launchpad.net/tiheum/equinox/ubuntu precise main ## Thèmes equinox
-deb http://ppa.launchpad.net/tualatrix/ppa/ubuntu precise main ## Ubuntu-Tweak
-deb http://ppa.launchpad.net/webupd8team/jupiter/ubuntu precise main ## Jupiter    ## TODO: rm Ubunut 13+
-deb http://ppa.launchpad.net/webupd8team/gnome3/ubuntu precise main ## Gnome Shell ## TODO: rm Ubunut 13+
-deb http://ppa.launchpad.net/matttbe/ppa/ubuntu precise main ## Matttbe
-
-#deb http://ppa.launchpad.net/tualatrix/ubuntu precise main ## ubuntu-tweak
-#deb http://ppa.launchpad.net/tualatrix/next/ubuntu precise main
-#deb http://ppa.launchpad.net/bisigi/ppa/ubuntu precise main ## Thèmes bisigi
-#deb http://ppa.launchpad.net/ailurus/ppa/ubuntu precise main ## Ailurus
-
-# packages.medibuntu.org
-# deb http://packages.medibuntu.org/ precise free non-free
-# dvdcss
-deb http://download.videolan.org/pub/debian/stable /  ## libdvdcss
-
-# archive.getdeb.net
-deb http://archive.getdeb.net/ubuntu precise-getdeb apps
+deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu trusty main ## Cairo-Dock
+deb http://ppa.launchpad.net/latexila/ppa/ubuntu trusty main ## LaTeXila
+deb http://ppa.launchpad.net/tualatrix/ppa/ubuntu trusty main ## Ubuntu-Tweak
+deb http://ppa.launchpad.net/matttbe/ppa/ubuntu trusty main ## Matttbe

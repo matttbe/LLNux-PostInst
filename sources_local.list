@@ -1,30 +1,16 @@
 # be.archive.ubuntu.com
-deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ precise main restricted universe multiverse
-deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ precise-updates main restricted universe multiverse
-deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ precise-security main restricted universe multiverse
+deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ trusty main restricted universe multiverse
+deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb http://192.168.1.2/archive.ubuntu.com/ubuntu/ trusty-security main restricted universe multiverse
 
 # archive.canonical.com
-deb http://192.168.1.2/archive.canonical.com/ubuntu precise partner
+deb http://192.168.1.2/archive.canonical.com/ubuntu trusty partner
 
 # extras.ubuntu.com
-deb http://192.168.1.2/extras.ubuntu.com/ubuntu precise main
+deb http://192.168.1.2/extras.ubuntu.com/ubuntu trusty main
 
 # ppa.launchpad.net
-deb http://192.168.1.2/ppa.launchpad.net/cairo-dock-team/ppa/ubuntu precise main
-deb http://192.168.1.2/ppa.launchpad.net/latexila/ppa/ubuntu precise main
-deb http://192.168.1.2/ppa.launchpad.net/tiheum/equinox/ubuntu precise main
-deb http://192.168.1.2/ppa.launchpad.net/tualatrix/ppa/ubuntu precise main
-deb http://192.168.1.2/ppa.launchpad.net/webupd8team/jupiter/ubuntu precise main
-deb http://192.168.1.2/ppa.launchpad.net/webupd8team/gnome3/ubuntu precise main ## Gnome Shell
-deb http://192.168.1.2/ppa.launchpad.net/matttbe/ppa/ubuntu precise main ## Matttbe
-
-#deb http://192.168.1.2/ppa.launchpad.net/ailurus/ppa/ubuntu precise main
-#deb http://192.168.1.2/ppa.launchpad.net/bisigi/ppa/ubuntu precise main
-#deb http://192.168.1.2/ppa.launchpad.net/tualatrix/ubuntu precise main
-
-# packages.medibuntu.org
-# deb http://192.168.1.2/packages.medibuntu.org/ precise free non-free
-deb http://download.videolan.org/pub/debian/stable / ## libdvdcss2 # TODO
-
-# archive.getdeb.net
-deb http://192.168.1.2/archive.getdeb.net/ubuntu precise-getdeb apps
+deb http://192.168.1.2/ppa.launchpad.net/cairo-dock-team/ppa/ubuntu trusty main ## Cairo-Dock
+deb http://192.168.1.2/ppa.launchpad.net/latexila/ppa/ubuntu trusty main ## LaTeXila
+deb http://192.168.1.2/ppa.launchpad.net/tualatrix/ppa/ubuntu trusty main ## ubuntu tweak
+deb http://192.168.1.2/ppa.launchpad.net/matttbe/ppa/ubuntu trusty main ## Matttbe
