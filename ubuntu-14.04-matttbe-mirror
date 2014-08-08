@@ -681,6 +681,11 @@ then
 			sudo apt-get purge -y --force-yes $packageToRemove || (bPostInstFailed=1 && echo "ERROR purge: $packageToRemove")
 		fi
 	fi
+
+	# Download manual ## TODO: take latest version + download from the mirror
+	wget https://ubuntu-manual.org//download/13.10/fr/screen -O /home/$ON_USER/Bureau/Manuel.pdf
+	chown $ON_USER:$ON_USER /home/$ON_USER/Bureau/Manuel.pdf
+
 	if [ "$PEPPER" = "1" ]; then
 		sudo update-pepperflashplugin-nonfree --install
 	fi
