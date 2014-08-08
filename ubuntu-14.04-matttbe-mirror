@@ -239,26 +239,6 @@ function OurMirror ()
 	fi
 }
 
-function custom_gnome_shell ()
-{
-	mkdir -p tmp_gnome_shell
-	cd tmp_gnome_shell
-	if test -f "$DIR/gnome-shell-extensions.tar.gz"; then
-		tar xzf "$DIR/gnome-shell-extensions.tar.gz"
-		rm -rf gnome-shell-extensions.tar.gz
-		mkdir -p /home/$ON_USER/.local/share/gnome-shell/extensions/
-		mv * /home/$ON_USER/.local/share/gnome-shell/extensions/
-	fi
-	cd ..
-	rm -rf tmp_gnome_shell
-	list_extensions_gnome="`sudo -u $ON_USER \"DBUS_SESSION_BUS_ADDRESS=\"$DBUS_SESSION_BUS_ADDRESS gsettings get org.gnome.shell enabled-extensions`"
-	if test "$list_extensions_gnome" = "" -o "$list_extensions_gnome" = "@as []"; then
-		GNOME_SHELL_EXTENSIONS="1"
-	else
-		zenity --info --width=400 --height=200 --title="Gnome Shell Extensions" --text="Des extensions supplémentaires ont été installées mais pas activées car il semblerait que d'autres extensions ont déjà été activées.\nVeuillez donc les activer par vous même via l'outil 'Gnome-Tweak Tools'."
-	fi
-}
-
 # menu, buttons
 # - snap
 # + dbus, scale, expo, wobbly
@@ -635,11 +615,8 @@ then
 				fi
 				INSTALL_STEAM="steam_latest.deb"
 		elif [ "$choice" = "Environnement de bureau Gnome" ];
-			then # TODO: update for Ubuntu 13 (or only installed gnome-shell + gnome-tweak-tool + gnome-classic)
-				if [ "$MIRROR" != "yes" ]; then
-					AddMeApt "deb http://ppa.launchpad.net/webupd8team/gnome3/ubuntu $DISTRIB main ## Gnome3"
-				fi
-				packagesInst="$packagesInst gnome-panel gnome-shell gnome-tweak-tool mgse-bottompanel mgse-menu mgse-windowlist gnome-shell-extensions-mediaplayer gnome-shell-extensions-extended-places-menu gnome-shell-extensions-apps-menu gnome-shell-extensions-workspace-indicator gnome-shell-extensions-common gnome-shell-extensions-dock gnome-shell-extensions-system-monitor gnome-shell-extensions-alternative-status-menu gnome-shell-extensions-windows-navigator gnome-shell-extensions-native-window-placement gnome-shell-extensions-user-theme gnome-shell-extensions-alternate-tab gnome-shell-extensions-drive-menu gnome-shell-extensions-places-menu gnome-shell-extensions-noa11y gnome-shell-extensions-weather "
+			then
+				packagesInst="$packagesInst gnome-panel gnome-shell gnome-tweak-tool "
 				custom_gnome_shell
 				# apt-cache search gnome-shell-extension | awk '{ print $1 }' | xargs
 		else
@@ -740,9 +717,6 @@ then
 	if [ "$PEPPER" = "1" ]; then
 		sudo update-pepperflashplugin-nonfree --install
 	fi
-# gnome-shell
-	if [ "$GNOME_SHELL_EXTENSIONS" ]; then
-		sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.shell enabled-extensions "['windowlist@linuxmint.com', 'menu@linuxmint.com', 'bottompanel@linuxmint.com', 'advanced-settings-in-usermenu@nuware.ru', 'alternative-status-menu@gnome-shell-extensions.gnome.org', 'music-integration@brianrobles204', 'overlay-icons@vinicius.depizzol.com.br', 'removeaccesibility@lomegor']"
 	fi
 
 	###########
