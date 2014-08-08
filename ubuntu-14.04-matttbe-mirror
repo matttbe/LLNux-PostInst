@@ -585,6 +585,11 @@ then
 				packagesInst="$packagesInst gnome-panel gnome-shell gnome-tweak-tool "
 				custom_gnome_shell
 				# apt-cache search gnome-shell-extension | awk '{ print $1 }' | xargs
+		elif [ "$choice" = "nVidia Prime" ];
+			then
+				if [ `lspci | grep VGA | grep -ci nvidia` -ge 1 -a `lspci -vnn | grep -c '\''[030[02]\]'` -ge 2 ]; then
+					packagesInst="$packagesInst nvidia-prime "
+				fi
 		else
 				choiceLOW=`echo $choice | tr '[:upper:]' '[:lower:]'`
 				packagesInst="$packagesInst $choiceLOW "
