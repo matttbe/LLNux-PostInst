@@ -595,6 +595,10 @@ then
 				AddMeApt "deb http://ppa.launchpad.net/pipelight/stable/ubuntu $DISTRIB main ## Pipelight"
 				PIPELIGHT="1"
 				packagesInst="$packagesInst pipelight-multi "
+		elif [ "$choice" = "Atom" ];
+			then
+				AddMeApt "deb http://ppa.launchpad.net/webupd8team/atom/ubuntu $DISTRIB main ## Pipelight"
+				packagesInst="$packagesInst atom "
 		else
 				choiceLOW=`echo $choice | tr '[:upper:]' '[:lower:]'`
 				packagesInst="$packagesInst $choiceLOW "
