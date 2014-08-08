@@ -129,7 +129,6 @@ function addppakey()
 			fi
 			done
 		done
-		sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com:80 46D7E7CF #getdeb key
 		sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com:80 5044912E #dropbox key
 		sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com:80 CFD74EDE # me key' > /home/$ON_USER/ubuntu-keyserver.sh
 		chmod +x /home/$ON_USER/ubuntu-keyserver.sh
@@ -365,7 +364,7 @@ WORD30="Corrige la lenteur de 'apt-get update' pour les dépôts de Google"
 WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de Google\""
 #WORD32="Monter automatiquement les lecteurs NTFS au démarrage"
 #WORD33=">> Reset: \"Monter automatiquement les lecteur NTFS au démarrage\""
-WORD34="Ajouter des dépôts additionnels (GetDeb, etc.) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
+WORD34="Ajouter des dépôts additionnels (PPA de Cairo-Dock, Matttbe, LaTeXila et Ubuntu-Tweak) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
 WORD39="Ajouter notre miroir (32 and 64bits only)"
 WORD40="Télécharger un centre de logiciels dédié aux jeux"
 WORD41="Défilement des messages du terminal sans limite"
@@ -550,28 +549,15 @@ then
 			testConnection
 			sudo rm /etc/apt/sources.list_backup > /dev/null 2>&1;
 			sudo cp /etc/apt/sources.list /etc/apt/sources.list_backup
-				testgetdeb=`wget --tries=1 --timeout=5 http://archive.getdeb.net/getdeb/ -O /tmp/testgetdeb; cat /tmp/testgetdeb | wc -l`
-				testgetdebb=`wget --tries=1 --timeout=5 http://mirrors.dotsrc.org/getdeb/ -O /tmp/testgetdebb; cat /tmp/testgetdebb | wc -l`
-				if [ $testgetdeb -gt 0 ]; then
-					getdebserver="deb http://archive.getdeb.net/ubuntu $DISTRIB-getdeb apps"
-					getdebSOURCEserver="deb-src http://archive.getdeb.net/ubuntu $DISTRIB-getdeb apps"
-				elif [ $testgetdebb -gt 0 ]; then
-					getdebserver="deb http://mirrors.dotsrc.org/getdeb/ubuntu $DISTRIB-getdeb apps"
-					getdebSOURCEserver="deb-src http://mirrors.dotsrc.org/getdeb/ubuntu $DISTRIB-getdeb apps"
-				fi
-				rm -f /tmp/testgetdeb /tmp/testgetdebb > /dev/null 2>&1;
 
-			ARRAY=( "deb http://archive.canonical.com/ubuntu $DISTRIB partner ## Canonical" "deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu $DISTRIB main ## Cairo-Dock-PPA" "deb http://ppa.launchpad.net/matttbe/ppa/ubuntu $DISTRIB main ## Matttbe" "deb http://download.videolan.org/pub/debian/stable / ## dvdcss" $getdebserver )
+			ARRAY=( "deb http://archive.canonical.com/ubuntu $DISTRIB partner ## Canonical" "deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu $DISTRIB main ## Cairo-Dock-PPA" "deb http://ppa.launchpad.net/matttbe/ppa/ubuntu $DISTRIB main ## Matttbe" "deb http://download.videolan.org/pub/debian/stable / ## dvdcss")
+
 			ELEMENTS=${#ARRAY[@]}
-			# "deb http://ppa.launchpad.net/ailurus/ppa/ubuntu $DISTRIB main ## Ailurus"
-			# "deb http://ppa.launchpad.net/tualatrix/ppa/ubuntu $DISTRIB main ## Ubuntu-tweak"
-
 			for (( i=0;i<$ELEMENTS;i++));
 			do
 				AddMeApt "${ARRAY[${i}]}"
 			done
 			testConnection
-			rm /etc/apt/sources.list.d/getdeb.list > /dev/null 2>&1; #delete getdeb repos if they were placed in a different location (not sources.list) because we'll add them anyway - fix for not getting double repos
 			sudo apt-get update
 		elif [ "$choicee" = "$WORD39" ];
 			then
