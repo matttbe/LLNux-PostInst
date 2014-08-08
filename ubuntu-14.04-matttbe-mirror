@@ -362,8 +362,6 @@ WORD28="Installation et configuration des polices de caractères net (DÉCONSEIL
 WORD29=">> Reset: \"Installation et configuration des polices de caractères net (Firefox inclus)\""
 WORD30="Corrige la lenteur de 'apt-get update' pour les dépôts de Google"
 WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de Google\""
-#WORD32="Monter automatiquement les lecteurs NTFS au démarrage"
-#WORD33=">> Reset: \"Monter automatiquement les lecteur NTFS au démarrage\""
 WORD34="Ajouter des dépôts additionnels (PPA de Cairo-Dock, Matttbe, LaTeXila et Ubuntu-Tweak) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
 WORD39="Ajouter notre miroir (32 and 64bits only)"
 WORD40="Télécharger un centre de logiciels dédié aux jeux"
@@ -521,29 +519,6 @@ then
 		elif [ "$choicee" = "$WORD31" ];
 			then
 			sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1; sudo cp /etc/apt/apt.conf.d/90localsettings /etc/apt/apt.conf.d/90localsettings_back; cat /etc/apt/apt.conf.d/90localsettings_back | sudo sed -e '/^Acquire::http::Pipeline-Depth.*/d' > /etc/apt/apt.conf.d/90localsettings; sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1;
-		#~ elif [ "$choicee" = "$WORD32" ];
-			#~ then
-				#~ sudo apt-get -y --force-yes install ntfs-3g
-#~ 
-				#~ if [ $(cat /etc/fstab | grep '^[^#].*ntfs-3g' > /tmp/checkntfs-3g.txt; cat /tmp/checkntfs-3g.txt | wc -l) -gt 0 ];
-				#~ then
-					#~ echo You already have ntfs-3g enabled
-				#~ else
-					#~ NTFSS=$(sudo blkid -c /dev/null -t TYPE=ntfs | cut -d ':' -f 1 > /tmp/checkntfs.txt)
-					#~ while read curline; do
-						#~ echo $curline #debugging
-						#~ dirr=$(echo $curline | cut -c 6- | sed -e 's/\///g')
-						#~ sudo mkdir /media/$dirr
-						#~ NTFSUUID=$(sudo blkid -c /dev/null -t TYPE=ntfs | grep $curline | cut -d '"' -f 4)
-						#~ echo $NTFSUUID #debugging
-						#~ eval "echo UUID=$NTFSUUID	/media/$dirr ntfs-3g	users				0	0" | sudo tee -a /etc/fstab > /dev/null
-					#~ done < /tmp/checkntfs.txt
-					#~ echo Done!
-				#~ fi
-				#~ rm /tmp/checkntfs.txt /tmp/checkntfs-3g.txt > /dev/null 2>&1;
-		elif [ "$choicee" = "$WORD33" ];
-			then
-			sudo rm /etc/fstab_back > /dev/null 2>&1; sudo cp /etc/fstab /etc/fstab_back; cat /etc/fstab_back | sudo sed -e '/^UUID.*ntfs-3g.*/d' > /etc/fstab; sudo rm /etc/fstab_back > /dev/null 2>&1;
 		elif [ "$choicee" = "$WORD34" ];
 			then
 			testConnection
