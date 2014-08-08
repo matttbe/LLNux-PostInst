@@ -550,31 +550,8 @@ then
 			testConnection
 			sudo rm /etc/apt/sources.list_backup > /dev/null 2>&1;
 			sudo cp /etc/apt/sources.list /etc/apt/sources.list_backup
-			# test medibuntu
-				/usr/bin/zenity --info --text="Merci de patientez pendant le test de vérification de la disponibilité des dépôts principaux Medibuntu et GetDeb et des miroirs (cela devrait prendre environ ~20 secondes)." &
-				# testmedibuntu=`wget --tries=1 --timeout=5 http://packages.medibuntu.org/ -O /tmp/testmedibuntumain; cat /tmp/testmedibuntumain | wc -l`
-				# testmedibuntuu=`wget --tries=1 --timeout=5 http://mirrors.ucr.ac.cr/medibuntu/ -O /tmp/testmedibuntuu; cat /tmp/testmedibuntuu | wc -l`
-				# testmedibuntuuu=`wget --tries=1 --timeout=5 http://mirror.oscc.org.my/medibuntu/ -O /tmp/testmedibuntuuu; cat /tmp/testmedibuntuuu | wc -l`
-				# testmedibuntuuuu=`wget --tries=1 --timeout=5 ftp://ftp.leg.uct.ac.za/pub/linux/medibuntu/ -O /tmp/testmedibuntuuuu; cat /tmp/testmedibuntuuuu | wc -l`
 				testgetdeb=`wget --tries=1 --timeout=5 http://archive.getdeb.net/getdeb/ -O /tmp/testgetdeb; cat /tmp/testgetdeb | wc -l`
 				testgetdebb=`wget --tries=1 --timeout=5 http://mirrors.dotsrc.org/getdeb/ -O /tmp/testgetdebb; cat /tmp/testgetdebb | wc -l`
-				#if [ $testmedibuntu -gt 0 ]; then
-				#	mediserv="http://packages.medibuntu.org"
-				#	medibuntuserver="deb http://packages.medibuntu.org/ $DISTRIB free non-free"
-				#	medibuntuSOURCEserver="deb-src http://packages.medibuntu.org/ $DISTRIB free non-free"
-				#elif [ $testmedibuntuu -gt 0 ]; then
-				#	mediserv="http://mirrors.ucr.ac.cr/medibuntu"
-				#	medibuntuserver="deb http://mirrors.ucr.ac.cr/medibuntu/ $DISTRIB free non-free"
-				#	medibuntuSOURCEserver="deb-src http://mirrors.ucr.ac.cr/medibuntu/ $DISTRIB free non-free"
-				#elif [ $testmedibuntuuu -gt 0 ]; then
-				#	mediserv="http://mirror.oscc.org.my/medibuntu"
-				#	medibuntuserver="deb http://mirror.oscc.org.my/medibuntu/ $DISTRIB free non-free"
-				#	medibuntuSOURCEserver="deb-src http://mirror.oscc.org.my/medibuntu/ $DISTRIB free non-free"
-				#elif [ $testmedibuntuuuu -gt 0 ]; then
-				#	mediserv="ftp://ftp.leg.uct.ac.za/pub/linux/medibuntu"
-				#	medibuntuserver="deb ftp://ftp.leg.uct.ac.za/pub/linux/medibuntu/ $DISTRIB free non-free"
-				#	medibuntuSOURCEserver="deb-src ftp://ftp.leg.uct.ac.za/pub/linux/medibuntu/ $DISTRIB free non-free"
-				#fi
 				if [ $testgetdeb -gt 0 ]; then
 					getdebserver="deb http://archive.getdeb.net/ubuntu $DISTRIB-getdeb apps"
 					getdebSOURCEserver="deb-src http://archive.getdeb.net/ubuntu $DISTRIB-getdeb apps"
@@ -582,15 +559,9 @@ then
 					getdebserver="deb http://mirrors.dotsrc.org/getdeb/ubuntu $DISTRIB-getdeb apps"
 					getdebSOURCEserver="deb-src http://mirrors.dotsrc.org/getdeb/ubuntu $DISTRIB-getdeb apps"
 				fi
-				# rm -f /tmp/testmedibuntumain /tmp/testmedibuntuu /tmp/testmedibuntuuu /tmp/testmedibuntuuuu  > /dev/null 2>&1;
 				rm -f /tmp/testgetdeb /tmp/testgetdebb > /dev/null 2>&1;
 
-			# cat /etc/apt/sources.list_backup | sed -e '/.*main.*restricted.*/d' > /etc/apt/sources.list; sleep 1	#delete the ubuntu default repositories so we don't get double repos
-			# sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*medibuntu.*precise free non-free/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_medibuntu > /dev/null 2>&1; sleep 1
-			#sleep 1 | cp /etc/apt/sources.list /etc/apt/sources.list_medibuntu; cat /etc/apt/sources.list_medibuntu | sed -e '/.*getdeb.*precise-getdeb apps/d' > /etc/apt/sources.list; rm /etc/apt/sources.list_getdeb > /dev/null 2>&1; sleep 1
-			#sleep 1; cp /etc/apt/sources.list /etc/apt/sources.list_empty; cat /etc/apt/sources.list_empty | sed '/^$/d' > /etc/apt/sources.list; sleep 1; rm /etc/apt/sources.list_empty > /dev/null 2>&1; #remove empty lines in sources.list
 			ARRAY=( "deb http://archive.canonical.com/ubuntu $DISTRIB partner ## Canonical" "deb http://ppa.launchpad.net/cairo-dock-team/ppa/ubuntu $DISTRIB main ## Cairo-Dock-PPA" "deb http://ppa.launchpad.net/matttbe/ppa/ubuntu $DISTRIB main ## Matttbe" "deb http://download.videolan.org/pub/debian/stable / ## dvdcss" $getdebserver )
-			# $medibuntuserver
 			ELEMENTS=${#ARRAY[@]}
 			# "deb http://ppa.launchpad.net/ailurus/ppa/ubuntu $DISTRIB main ## Ailurus"
 			# "deb http://ppa.launchpad.net/tualatrix/ppa/ubuntu $DISTRIB main ## Ubuntu-tweak"
@@ -600,10 +571,7 @@ then
 				AddMeApt "${ARRAY[${i}]}"
 			done
 			testConnection
-			# rm /etc/apt/sources.list.d/medibuntu.list > /dev/null 2>&1;
 			rm /etc/apt/sources.list.d/getdeb.list > /dev/null 2>&1; #delete getdeb repos if they were placed in a different location (not sources.list) because we'll add them anyway - fix for not getting double repos
-			# wget -q -O- $mediserv/medibuntu-key.gpg | apt-key add -
-			#sudo apt-get --quiet update && sudo apt-get --yes --quiet --allow-unauthenticated install medibuntu-keyring && sudo apt-get --quiet update
 			sudo apt-get update
 		elif [ "$choicee" = "$WORD39" ];
 			then
