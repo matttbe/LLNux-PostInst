@@ -671,13 +671,6 @@ then
 	if test -e "/usr/share/doc/libdvdread4/install-css.sh"; then
 		sudo /usr/share/doc/libdvdread4/install-css.sh	#dvd
 	fi
-# Steam
-	if test -n "$INSTALL_STEAM" -a -f "$INSTALL_STEAM"; then
-		echo "Install STEAM"
-		sudo dpkg -i "$INSTALL_STEAM"
-		sudo apt-get install -fy
-		rm "$INSTALL_STEAM"
-	fi
 
 	if [ "$LATEX_DOC_REMOVE" = "Oui" ]; then # CLEAN
 		packageToRemove=""
