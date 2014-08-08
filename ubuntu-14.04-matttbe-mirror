@@ -518,14 +518,7 @@ then
 				PEPPER="1"
 		elif [ "$choice" = "Thèmes supplémentaires" ];
 			then
-				if [ "$MIRROR" != "yes" ]; then
-					#AddMeApt "deb http://ppa.launchpad.net/bisigi/ppa/ubuntu $DISTRIB main ## Thèmes Francois Vogelweith"
-					AddMeApt "deb http://ppa.launchpad.net/tiheum/equinox/ubuntu $DISTRIB main ## Equinox"
-				fi
-				# packagesInst="$packagesInst bisigi-themes community-themes gtk2-engines-equinox equinox-theme equinox-ubuntu-theme faenza-icon-theme "
-				packagesInst="$packagesInst gtk2-engines-equinox equinox-theme equinox-ubuntu-theme faenza-icons-mono ubuntu-wallpapers-extra gtk2-engines-murrine "
-				packagesInst="$packagesInst faenza-icon-theme faience-icon-theme faience-theme " # on Equinox ppa
-				# TODO: for Ubuntu 13.04 Raring: check other themes
+				packagesInst="$packagesInst elementary-icon-theme suru-icon-theme " # TODO: add more themes
 		elif [ "$choice" = "Google Earth" ];
 			then
 				sudo echo googleearth shared/accepted-googleearth-eula select true | sudo /usr/bin/debconf-set-selections
