@@ -1,8 +1,6 @@
 #!/bin/bash
 # Script which should help users install / tweak some stuff immediately
-# after installing Ubuntu 12.04 32bit and 64bit.
-#
-#     version 12.10.1
+# after installing Ubuntu 14.04 32bit and 64bit.
 #
 # The script comes with no warranty. The author is not responsible if
 # your system breaks.
@@ -53,14 +51,11 @@ DISTRIBNUM=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -
 DISTRIBNUM2=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -f2)
 
 # warning ##################### MIRROR
-if test "$DISTRIB" = "precise"; then
+if test "$DISTRIB" = "trusty"; then
 	MIRROR_GOOD_DISTRIB=TRUE
-elif test $DISTRIBNUM -eq 12 -o "$DISTRIB" = "quantal"; then
-	echo "WARNING: désactivation du miroir"
-	MIRROR_GOOD_DISTRIB=FALSE
 else
-	echo "WARNING: This script has been made for Ubuntu Precise 12.04 and Quantal 12.10! "
-	/usr/bin/zenity --warning --title="WARNING" --text="You are not using Ubuntu 12.04 Precise Pangolin or 12.10 Quantal"
+	echo "WARNING: This script has been made for Ubuntu Trusty 14.04! "
+	/usr/bin/zenity --warning --title="WARNING" --text="You are not using Ubuntu 14.04 Trusty Thar"
 	MIRROR_GOOD_DISTRIB=FALSE
 fi
 
