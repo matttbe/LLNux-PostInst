@@ -565,6 +565,12 @@ then
 		elif [ "$choice" = "CCSM et extra plugins" ];
 			then
 				packagesInst="$packagesInst compizconfig-settings-manager compiz-fusion-plugins-extra compiz-fusion-plugins-main compiz-plugins compiz-plugins-default compiz-plugins-extra compiz-plugins-main compiz-plugins-main-default "
+		elif [ "$choice" = "Skype" ];
+			then
+				packagesInst="$packagesInst skype"
+				if [ $(uname -i) = 'x86_64' ]; then ## Workaround Skype theme and systray
+					packagesInst="$packagesInst gtk2-engines-murrine:i386 gtk2-engines-pixbuf:i386 sni-qt:i386"
+				fi
 		elif [ "$choice" = "Misc" ];
 			then
 				packagesInst="$packagesInst ntfs-3g soundconverter mp3splt mp3gain trickle nautilus-wallpaper nautilus-open-terminal nautilus-gksu nautilus-image-converter pdfedit cheese gm-notify frozen-bubble winff startupmanager gedit-plugins pyrenamer mozplugger cabextract ntp parcellite hardinfo libnotify-bin sl ffmpeg unp pdfshuffler dconf-tools gconf-editor htop "
