@@ -624,12 +624,6 @@ then
 	# Script vérification
 	echo -e "\n\t ====== Packages verification and installation! =======\n"
 
-	# WORKAROUND ia32-libs
-	if test `echo "$packagesInst"| grep -c ia32-libs` -gt 0; then
-		echo -e "\n\t====== WORKAROUND ia32-libs =======\n"
-		sudo apt-get install -y --force-yes -m ia32-libs
-	fi
-
 	mkdir -p /tmp/matttbe/
 	echo -e '# on ajoute que les paquets qui manquent
 	echo "\t on ajoute que les paquets qui manquent"
