@@ -358,8 +358,6 @@ WORD20="Activer les icônes dans les menus et les boutons"
 WORD21=">> Reset: \"Activer les icônes dans les menus et les boutons\""
 WORD26="Enlever le paquet ubuntu-docs (libération de 252Mo)"
 WORD27=">> Reset \"Enlever le paquet ubuntu-docs (libération de 252Mo)\""
-WORD28="Installation et configuration des polices de caractères net (DÉCONSEILLÉ)"
-WORD29=">> Reset: \"Installation et configuration des polices de caractères net (Firefox inclus)\""
 WORD30="Corrige la lenteur de 'apt-get update' pour les dépôts de Google"
 WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de Google\""
 WORD34="Ajouter des dépôts additionnels (PPA de Cairo-Dock, Matttbe, LaTeXila et Ubuntu-Tweak) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
@@ -447,72 +445,6 @@ then
 		elif [ "$choicee" = "$WORD27" ];
 			then
 			sudo apt-get -y --force-yes install ubuntu-docs
-		elif [ "$choicee" = "$WORD28" ];
-			then
-			testConnection
-			/usr/bin/zenity --info --text="Vous avez choisi d'installer les polices de caractères avec un meilleur rendu. Cela va prendre quelques minutes en focntion de votre connexion.\\n\\nCliquer sur Valider pour continuer! "
-			cd /tmp
-			echo "Installing Sharpfonts. This may take a few minutes depending on connection speed..."
-			# download and install the cabextract tool
-			echo "Installing the cabextract tool..."
-			sudo apt-get install -y --force-yes cabextract
-			# Download all needed fonts
-			wget http://sharpfonts.com/fonts/andale32.exe
-			wget http://sharpfonts.com/fonts/arial32.exe
-			wget http://sharpfonts.com/fonts/arialb32.exe
-			wget http://sharpfonts.com/fonts/comic32.exe
-			wget http://sharpfonts.com/fonts/courie32.exe
-			wget http://sharpfonts.com/fonts/georgi32.exe
-			wget http://sharpfonts.com/fonts/impact32.exe
-			wget http://sharpfonts.com/fonts/tahoma32.exe
-			wget http://sharpfonts.com/fonts/times32.exe
-			wget http://sharpfonts.com/fonts/trebuc32.exe
-			wget http://sharpfonts.com/fonts/verdan32.exe
-			wget http://sharpfonts.com/fonts/webdin32.exe
-			# create the needed directory if it is not existing
-			if [ ! -d $TRUETYPEPATH ]; then
-			mkdir -p $TRUETYPEPATH
-			fi
-			# Extract all fonts to the truetype directory
-			cabextract -d /usr/share/fonts/truetype/ andale32.exe arial32.exe arialb32.exe comic32.exe courie32.exe georgi32.exe impact32.exe tahoma32.exe times32.exe trebuc32.exe verdan32.exe webdin32.exe
-			# Download the xml files and extract the configuration files into /etc/fonts/
-			wget http://sharpfonts.com/fontconfig.tbz
-			tar xvjpf fontconfig.tbz -C /etc/fonts/
-			rm -r /tmp/*.exe > /dev/null 2>&1;
-			rm /tmp/fontconfig.tbz > /dev/null 2>&1;
-			#Firefox sharp fonts
-			touch /home/$ON_USER/.fonts.conf
-			echo "<?xml version=\"1.0\"?><!DOCTYPE fontconfig SYSTEM \"fonts.dtd\">" | tee	/home/$ON_USER/.fonts.conf
-			echo "<fontconfig>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<match target=\"font\" >" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<edit mode=\"assign\" name=\"rgba\" >" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<const>rgb</const>" | tee -a /home/$ON_USER/.fonts.conf
-				echo "</edit>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "</match>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<match target=\"font\" >" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<edit mode=\"assign\" name=\"hinting\" >" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<bool>true</bool>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "</edit>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "</match>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<match target=\"font\" >" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<edit mode=\"assign\" name=\"hintstyle\" >" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<const>hintfull</const>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "</edit>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "</match>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<match target=\"font\" >" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<edit mode=\"assign\" name=\"antialias\" >" | tee -a /home/$ON_USER/.fonts.conf
-			echo "<bool>true</bool>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "</edit>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "</match>" | tee -a /home/$ON_USER/.fonts.conf
-			echo "</fontconfig>" | tee -a /home/$ON_USER/.fonts.conf
-			chown $ON_USER /home/$ON_USER/.fonts.conf
-
-			echo "Sharp fonts installation finished... Please remember to logout and login again"
-			cd $DIR
-
-		elif [ "$choicee" = "$WORD29" ];
-			then
-			rm /etc/fonts/alias.conf /etc/fonts/local.conf /etc/fonts/misc.conf /etc/fonts/msfonts-rules.conf /home/$ON_USER/.fonts.conf > /dev/null 2>&1;
 		elif [ "$choicee" = "$WORD30" ];
 			then
 			echo "Acquire::http::Pipeline-Depth \"0\";" | sudo tee -a /etc/apt/apt.conf.d/90localsettings > /dev/null
