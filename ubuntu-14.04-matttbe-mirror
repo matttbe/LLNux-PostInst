@@ -577,13 +577,7 @@ then
 				if [ "`echo $LANG |cut -d_ -f1`" = "fr" ]; then
 					packagesInst="$packagesInst libreoffice-l10n-fr language-pack-gnome-fr language-support-writing-fr aspell-fr "
 				fi
-		elif [ "$choice" = "Economie d'énergie" ];
 			then
-				if [ "$MIRROR" != "yes" ]; then
-					AddMeApt "deb http://ppa.launchpad.net/webupd8team/jupiter/ubuntu $DISTRIB main ## Jupiter"
-				fi
-				packagesInst="$packagesInst powertop jupiter "
-				# TODO: for Ubuntu 13.04 Raring: jupiter no more needed
 		elif [ "$choice" = "ZRam" ]; ## TODO Ubuntu 13: utiliser zram des dépôts
 			then
 				AddMeApt "deb http://ppa.launchpad.net/shnatsel/zram/ubuntu $DISTRIB main ## ZRam"
