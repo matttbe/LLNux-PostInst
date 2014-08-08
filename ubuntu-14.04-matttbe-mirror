@@ -374,7 +374,7 @@ then
 	IFS="|"
 	for choicee in $choicess
 	do
-		if [ "$choicee" = "$WORD12" ];
+		if [ "$choicee" = "$WORD12" ]; # WM: button: layout
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --type string --set /apps/metacity/general/button_layout "menu:minimize,maximize,close"
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.wm.preferences "menu:minimize,maximize,close"
@@ -388,7 +388,7 @@ then
 		elif [ "$choicee" = "$WORD15" ];
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/update-notifier/auto_launch true
-		elif [ "$choicee" = "$WORD16" ];
+		elif [ "$choicee" = "$WORD16" ]; # volumes: icons in desktop
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/nautilus/desktop/volumes_visible false
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.nautilus.desktop volumes-visible false
@@ -404,7 +404,7 @@ then
 			then
 			sudo -u lightdm gconftool-2 --set /desktop/gnome/sound/event_sounds --type bool true
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/sound/event_sounds --type bool true
-		elif [ "$choicee" = "$WORD20" ];
+		elif [ "$choicee" = "$WORD20" ]; # buttons/menus have icons
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/buttons_have_icons --type bool true
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/menus_have_icons --type bool true
@@ -416,7 +416,7 @@ then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/menus_have_icons --type bool false
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface buttons-have-icons false
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface menus-have-icons false
-		elif [ "$choicee" = "$WORD26" ];
+		elif [ "$choicee" = "$WORD26" ]; # docs
 			then
 			sudo apt-get purge -y --force-yes ubuntu-docs
 		elif [ "$choicee" = "$WORD27" ];
@@ -428,7 +428,7 @@ then
 		elif [ "$choicee" = "$WORD31" ];
 			then
 			sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1; sudo cp /etc/apt/apt.conf.d/90localsettings /etc/apt/apt.conf.d/90localsettings_back; cat /etc/apt/apt.conf.d/90localsettings_back | sudo sed -e '/^Acquire::http::Pipeline-Depth.*/d' > /etc/apt/apt.conf.d/90localsettings; sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1;
-		elif [ "$choicee" = "$WORD34" ];
+		elif [ "$choicee" = "$WORD34" ]; # repos
 			then
 			testConnection
 			sudo rm /etc/apt/sources.list_backup > /dev/null 2>&1;
@@ -443,12 +443,12 @@ then
 			done
 			testConnection
 			sudo apt-get update
-		elif [ "$choicee" = "$WORD39" ];
+		elif [ "$choicee" = "$WORD39" ]; # mirror
 			then
 			OurMirror "up"
 			apt-get update
 			MIRROR="yes"
-		elif [ "$choicee" = "$WORD40" ];
+		elif [ "$choicee" = "$WORD40" ]; # extra games
 			then
 			sudo -u $ON_USER mkdir /home/$ON_USER/Jeux
 			cd /home/$ON_USER/Jeux
@@ -471,7 +471,7 @@ then
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad scroll-method edge-scrolling
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad horiz-scroll-enabled false
-		elif [ "$choicee" = "$WORD46" ];
+		elif [ "$choicee" = "$WORD46" ]; # disable shopping
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set com.canonical.Unity.Lenses disabled-scopes "['more_suggestions-amazon.scope', 'more_suggestions-u1ms.scope', 'more_suggestions-populartracks.scope', 'music-musicstore.scope', 'more_suggestions-ebay.scope', 'more_suggestions-ubuntushop.scope', 'more_suggestions-skimlinks.scope']"
 		elif [ "$choicee" = "$WORD47" ];
