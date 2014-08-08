@@ -541,7 +541,8 @@ then
 				packagesInst="$packagesInst cairo-dock cairo-dock-plug-ins "
 		elif [ "$choice" = "Chromium Browser" ];
 			then
-				packagesInst="$packagesInst chromium-browser chromium-browser-l10n "
+				packagesInst="$packagesInst chromium-browser chromium-browser-l10n pepperflashplugin-nonfree "
+				PEPPER="1"
 		elif [ "$choice" = "Thèmes supplémentaires" ];
 			then
 				if [ "$MIRROR" != "yes" ]; then
@@ -736,6 +737,8 @@ then
 			sudo apt-get purge -y --force-yes $packageToRemove || (bPostInstFailed=1 && echo "ERROR purge: $packageToRemove")
 		fi
 	fi
+	if [ "$PEPPER" = "1" ]; then
+		sudo update-pepperflashplugin-nonfree --install
 	fi
 # gnome-shell
 	if [ "$GNOME_SHELL_EXTENSIONS" ]; then
