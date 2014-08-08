@@ -554,15 +554,8 @@ then
 				packagesInst="$packagesInst vlc-plugin-notify vlc-plugin-pulse "
 		elif [ "$choice" = "Codecs et extras" ];
 			then
-				sudo echo sun-java6-jre shared/accepted-sun-dlj-v1-1 select true | sudo /usr/bin/debconf-set-selections
 				sudo echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo /usr/bin/debconf-set-selections
-				packagesInst="$packagesInst ubuntu-restricted-addons ubuntu-restricted-extras gstreamer0.10-ffmpeg gstreamer0.10-plugins-bad gstreamer0.10-plugins-bad-multiverse gstreamer0.10-plugins-ugly gstreamer0.10-plugins-ugly-multiverse libdvdnav4 libdvdread4 libdvdcss2 libxine1-ffmpeg rar unrar p7zip-full p7zip-rar unace ttf-mscorefonts-installer ttf-liberation mencoder adobe-flashplugin "
-				# TODO: for Ubuntu 13.04 Raring: gstreamer1.0 is now used by default
-				if [ "i686" = `uname -m` ]; then
-					packagesInst="$packagesInst w32codecs "
-				else
-					packagesInst="$packagesInst w64codecs "
-				fi
+				packagesInst="$packagesInst ubuntu-restricted-addons ubuntu-restricted-extras libdvdnav4 libdvdread4 libdvdcss2 rar unrar p7zip-full p7zip-rar unace ttf-mscorefonts-installer ttf-liberation mencoder adobe-flashplugin "
 		elif [ "$choice" = "Ubuntu-Tweak" ];
 			then
 				if [ "$MIRROR" != "yes" ]; then
