@@ -573,12 +573,9 @@ then
 				fi
 		elif [ "$choice" = "Misc" ];
 			then
-				packagesInst="$packagesInst ntfs-3g soundconverter mp3splt mp3gain trickle nautilus-wallpaper nautilus-open-terminal nautilus-gksu nautilus-image-converter pdfedit cheese gm-notify frozen-bubble winff startupmanager gedit-plugins pyrenamer mozplugger cabextract ntp parcellite hardinfo libnotify-bin sl ffmpeg unp pdfshuffler dconf-tools gconf-editor htop "
+				packagesInst="$packagesInst ntfs-3g soundconverter trickle nautilus-open-terminal nautilus-image-manipulator nautilus-image-converter xournal cheese frozen-bubble winff parcellite gedit-plugins pyrenamer hardinfo libnotify-bin sl ffmpeg libav-tools pdfshuffler dconf-tools gconf-editor htop powertop gtk-redshift "
 				if [ "`echo $LANG |cut -d_ -f1`" = "fr" ]; then
 					packagesInst="$packagesInst libreoffice-l10n-fr language-pack-gnome-fr language-support-writing-fr aspell-fr "
-					#if test ! -d /usr/share/doc/simplecommeubuntu; then
-					#	packagesInst="$packagesInst simplecommeubuntu "
-					#fi
 				fi
 		elif [ "$choice" = "Economie d'énergie" ];
 			then
