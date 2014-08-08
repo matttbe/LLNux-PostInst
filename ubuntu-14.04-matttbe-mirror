@@ -533,13 +533,13 @@ then
 				echo "# You may comment out this entry, but any other modifications may be lost." | sudo tee -a $GT_LIST > /dev/null
 				echo "deb http://dl.google.com/linux/talkplugin/deb/ stable main" | sudo tee -a $GT_LIST > /dev/null
 				packagesInst="$packagesInst google-talkplugin "
-				# TODO: check if it's ok for Ubuntu >= 13. Or install: https://dl.google.com/linux/direct/google-talkplugin_current_i386.deb or https://dl.google.com/linux/direct/google-talkplugin_current_amd64.deb
+				# Or download and install: https://dl.google.com/linux/direct/google-talkplugin_current_i386.deb or https://dl.google.com/linux/direct/google-talkplugin_current_amd64.deb
 		elif [ "$choice" = "Outils de développement" ];
 			then
-				packagesInst="$packagesInst build-essential automake make patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr mercurial geany geany-plugins "
+				packagesInst="$packagesInst build-essential automake make patch dpatch patchutils autotools-dev cmake libtool autoconf git gitg meld subversion bzr mercurial geany geany-plugins colordiff vim zsh gdb valgrind nemiver d-feet devhelp "
 		elif [ "$choice" = "Outils de packaging Debian-Ubuntu" ];
 			then
-				packagesInst="$packagesInst build-essential automake make checkinstall patch dpatch patchutils autotools-dev cmake libtool autoconf git-core subversion bzr debhelper pbuilder cdbs quilt fakeroot xutils lintian dh-make ubuntu-dev-tools "
+				packagesInst="$packagesInst debhelper pbuilder cdbs quilt fakeroot xutils lintian dh-make ubuntu-dev-tools "
 		elif [ "$choice" = "Dropbox" ];
 			then
 				# echo "deb http://linux.dropbox.com/ubuntu $DISTRIB main" > /home/$ON_USER/dropbox.list
