@@ -240,12 +240,6 @@ function OurMirror ()
 	fi
 }
 
-function energy_grub ()
-{
-	sudo sed -i -e 's/\(GRUB_CMDLINE_LINUX_DEFAULT=\)"\(.*\)"/\1"quiet splash pcie_aspm=force"/' /etc/default/grub
-	sudo update-grub
-}
-
 function custom_gnome_shell ()
 {
 	mkdir -p tmp_gnome_shell
@@ -372,8 +366,6 @@ WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de 
 #WORD32="Monter automatiquement les lecteurs NTFS au démarrage"
 #WORD33=">> Reset: \"Monter automatiquement les lecteur NTFS au démarrage\""
 WORD34="Ajouter des dépôts additionnels (GetDeb, etc.) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
-WORD42="Ajouter les options dans le grub pour forcer l'économie d'énergie"
-WORD38="N'utiliser que la carte graphique intégrée à la carte mère (forcer - pour intel+nvidia sans Optimus attention à ce que vous faites)"
 WORD39="Ajouter notre miroir (32 and 64bits only)"
 WORD40="Télécharger un centre de logiciels dédié aux jeux"
 WORD41="Défilement des messages du terminal sans limite"
@@ -613,12 +605,8 @@ then
 			# wget -q -O- $mediserv/medibuntu-key.gpg | apt-key add -
 			#sudo apt-get --quiet update && sudo apt-get --yes --quiet --allow-unauthenticated install medibuntu-keyring && sudo apt-get --quiet update
 			sudo apt-get update
-		elif [ "$choicee" = "$WORD42" ]; ## TODO plus nécessaire pour Ubuntu >= 13
-			then
-			energy_grub
 		elif [ "$choicee" = "$WORD39" ];
 			then
-			# if [ "i686" = `uname -m` ]; then
 			OurMirror "up"
 			apt-get update
 			MIRROR="yes"
