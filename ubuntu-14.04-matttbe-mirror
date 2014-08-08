@@ -429,12 +429,6 @@ then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/menus_have_icons --type bool true
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface buttons-have-icons true
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface menus-have-icons true
-		#elif [ "$choicee" = "$WORD41" ];
-			#then
-			#sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /system/indicator/me/display --type int 2
-		#elif [ "$choicee" = "$WORD42" ];
-			#then
-			#sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /system/indicator/me/display --type int 1
 		elif [ "$choicee" = "$WORD21" ];
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/buttons_have_icons --type bool false
@@ -483,13 +477,8 @@ then
 			sudo ./install
 			cd $DIR
 		elif [ "$choicee" = "$WORD41" ];
-			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool true # (défilement)
-			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/use_theme_colors' --type bool false
-			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/background_color' --type string '#000000000000'
-			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/foreground_color' --type string '#FFFFFFFFFFFF'
-			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/background_type' --type string 'transparent'
-			#gconftool-2 -s '/apps/gnome-terminal/profiles/Default/background_darkness' --type float 0.9
+			then # gnome-terminal is still using GConf
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool true
 		elif [ "$choicee" = "$WORD41BIS" ];
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool false # (défilement)
