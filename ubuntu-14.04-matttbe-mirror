@@ -334,8 +334,6 @@ WORD20="Activer les icônes dans les menus et les boutons"
 WORD21=">> Reset: \"Activer les icônes dans les menus et les boutons\""
 WORD26="Enlever le paquet ubuntu-docs (libération de 252Mo)"
 WORD27=">> Reset \"Enlever le paquet ubuntu-docs (libération de 252Mo)\""
-WORD30="Corrige la lenteur de 'apt-get update' pour les dépôts de Google"
-WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de Google\""
 WORD34="Ajouter des dépôts additionnels (PPA de Cairo-Dock, Matttbe, LaTeXila et Ubuntu-Tweak) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
 WORD39="Ajouter notre miroir (32 and 64bits only)"
 WORD40="Télécharger un centre de logiciels dédié aux jeux"
@@ -404,12 +402,6 @@ then
 		elif [ "$choicee" = "$WORD27" ];
 			then
 			sudo apt-get -y --force-yes install ubuntu-docs
-		elif [ "$choicee" = "$WORD30" ];
-			then
-			echo "Acquire::http::Pipeline-Depth \"0\";" | sudo tee -a /etc/apt/apt.conf.d/90localsettings > /dev/null
-		elif [ "$choicee" = "$WORD31" ];
-			then
-			sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1; sudo cp /etc/apt/apt.conf.d/90localsettings /etc/apt/apt.conf.d/90localsettings_back; cat /etc/apt/apt.conf.d/90localsettings_back | sudo sed -e '/^Acquire::http::Pipeline-Depth.*/d' > /etc/apt/apt.conf.d/90localsettings; sudo rm /etc/apt/apt.conf.d/90localsettings_back > /dev/null 2>&1;
 		elif [ "$choicee" = "$WORD34" ]; # repos
 			then
 			testConnection
@@ -439,13 +431,13 @@ then
 			sudo -u sed -i "/desktop/d" install # pas besoin de son raccourcis qui se place sur un dossier inexistant sans les permissions.
 			sudo ./install
 			cd $DIR
-		elif [ "$choicee" = "$WORD41" ];
+		elif [ "$choicee" = "$WORD41" ]; # terminal: scrollback unlimited
 			then # gnome-terminal is still using GConf
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool true
 		elif [ "$choicee" = "$WORD41BIS" ];
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool false # (défilement)
-		elif [ "$choicee" = "$WORD44" ];
+		elif [ "$choicee" = "$WORD44" ]; # scroll with two fingers
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad scroll-method two-finger-scrolling
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad horiz-scroll-enabled true
