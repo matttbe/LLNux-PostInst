@@ -240,14 +240,6 @@ function OurMirror ()
 	fi
 }
 
-function bumblebee ()
-{
-	if test "$1" = "FORCE" -o `lspci -vnn | grep -c '\''[030[02]\]'` -ge 2; then
-		AddMeApt "deb http://ppa.launchpad.net/bumblebee/stable/ubuntu $DISTRIB main ## Bumblebee"
-		BUMBLEBEE_MOD="1"
-	fi
-}
-
 function energy_grub ()
 {
 	sudo sed -i -e 's/\(GRUB_CMDLINE_LINUX_DEFAULT=\)"\(.*\)"/\1"quiet splash pcie_aspm=force"/' /etc/default/grub
@@ -380,8 +372,6 @@ WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de 
 #WORD32="Monter automatiquement les lecteurs NTFS au démarrage"
 #WORD33=">> Reset: \"Monter automatiquement les lecteur NTFS au démarrage\""
 WORD34="Ajouter des dépôts additionnels (GetDeb, etc.) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
-WORD37="Installer Bumblebee pour gérer la technologie Optimus (si Intel + Nvidia Optimus détecté)"
-WORD43="Installer Bumblebee pour gérer la technologie Optimus (forcer - attention à ce que vous faites)"
 WORD42="Ajouter les options dans le grub pour forcer l'économie d'énergie"
 WORD38="N'utiliser que la carte graphique intégrée à la carte mère (forcer - pour intel+nvidia sans Optimus attention à ce que vous faites)"
 WORD39="Ajouter notre miroir (32 and 64bits only)"
@@ -623,18 +613,9 @@ then
 			# wget -q -O- $mediserv/medibuntu-key.gpg | apt-key add -
 			#sudo apt-get --quiet update && sudo apt-get --yes --quiet --allow-unauthenticated install medibuntu-keyring && sudo apt-get --quiet update
 			sudo apt-get update
-		elif [ "$choicee" = "$WORD37" ]; ## TODO Ubuntu >= 13.10: utiliser nvidia-prime dans les dépôts officiels
-			then
-			bumblebee
-		elif [ "$choicee" = "$WORD43" ];
-			then
-			bumblebee "FORCE"
 		elif [ "$choicee" = "$WORD42" ]; ## TODO plus nécessaire pour Ubuntu >= 13
 			then
 			energy_grub
-		elif [ "$choicee" = "$WORD38" ];
-			then
-			vgaswitchroo "OFF" "DIGD" "FORCE"
 		elif [ "$choicee" = "$WORD39" ];
 			then
 			# if [ "i686" = `uname -m` ]; then
@@ -819,9 +800,6 @@ then
 		fi
 	done
 
-	if [ "$BUMBLEBEE_MOD" = "1" ]; then
-		packagesInst="$packagesInst bumblebee bumblebee-nvidia "
-	fi
 
 	##################
 	## Installation ##
@@ -911,8 +889,6 @@ then
 			sudo apt-get purge -y --force-yes $packageToRemove || (bPostInstFailed=1 && echo "ERROR purge: $packageToRemove")
 		fi
 	fi
-	if [ "$BUMBLEBEE_MOD" = "1" ]; then
-		sudo usermod -a -G bumblebee $ON_USER
 	fi
 # gnome-shell
 	if [ "$GNOME_SHELL_EXTENSIONS" ]; then
