@@ -240,16 +240,6 @@ function OurMirror ()
 	fi
 }
 
-function vgaswitchroo ()
-{
-	if test "$3" = "FORCE" -o `lspci |grep -c VGA` -eq 2 -a `lspci |grep VGA |grep -c Intel` -eq 1 -a `lspci |grep VGA |grep -c ATI` -eq 1; then
-		# $1 = on/off ; $2 = DIGD/DDIS
-		sudo sh -c "echo $2 > /sys/kernel/debug/vgaswitcheroo/switch"
-		sudo sh -c "echo $1 > /sys/kernel/debug/vgaswitcheroo/switch"
-		sudo sed -i "/^exit 0/ s/exit 0/\necho $1 > \/sys\/kernel\/debug\/vgaswitcheroo\/switch\n\nexit 0/g" /etc/rc.local
-	fi
-}
-
 function bumblebee ()
 {
 	if test "$1" = "FORCE" -o `lspci -vnn | grep -c '\''[030[02]\]'` -ge 2; then
@@ -390,8 +380,6 @@ WORD31=">> Reset: \"Corrige la lenteur de 'apt-get update' pour les dépôts de 
 #WORD32="Monter automatiquement les lecteurs NTFS au démarrage"
 #WORD33=">> Reset: \"Monter automatiquement les lecteur NTFS au démarrage\""
 WORD34="Ajouter des dépôts additionnels (GetDeb, etc.) SI VOUS N'UTILISEZ PAS NOTRE MIRROIR"
-WORD35="N'utiliser que la carte graphique intégrée à la carte mère (Intel si GPU Intel + ATI détecté)"
-WORD36="N'utiliser que la carte graphique dédiée (ATI si GPU Intel + ATI)"
 WORD37="Installer Bumblebee pour gérer la technologie Optimus (si Intel + Nvidia Optimus détecté)"
 WORD43="Installer Bumblebee pour gérer la technologie Optimus (forcer - attention à ce que vous faites)"
 WORD42="Ajouter les options dans le grub pour forcer l'économie d'énergie"
@@ -635,12 +623,6 @@ then
 			# wget -q -O- $mediserv/medibuntu-key.gpg | apt-key add -
 			#sudo apt-get --quiet update && sudo apt-get --yes --quiet --allow-unauthenticated install medibuntu-keyring && sudo apt-get --quiet update
 			sudo apt-get update
-		elif [ "$choicee" = "$WORD35" ];
-			then
-			vgaswitchroo "OFF" "DIGD"
-		elif [ "$choicee" = "$WORD36" ];
-			then
-			vgaswitchroo "ON" "DDIS"
 		elif [ "$choicee" = "$WORD37" ]; ## TODO Ubuntu >= 13.10: utiliser nvidia-prime dans les dépôts officiels
 			then
 			bumblebee
