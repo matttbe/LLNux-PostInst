@@ -589,8 +589,10 @@ then
 	fi
 
 	if [ "$PIPELIGHT" = "1" ]; then
-		sudo pipelight-plugin --enable silverlight
-		sudo pipelight-plugin --enable widevine
+		sudo touch /home/$ON_USER/.config/wine-wininet-installer.accept-license
+		sudo pipelight-plugin --accept --enable silverlight
+		sudo pipelight-plugin --accept --enable unity3D
+		sudo pipelight-plugin --accept --enable widevine
 	fi
 
 	###########
