@@ -31,6 +31,8 @@
 
 
 MIRROR_ADDR="http://192.168.1.2/"
+# Download manual ## TODO: take latest version + download from the local mirror
+MANUAL_FR="https://ubuntu-manual.org//download/13.10/fr/screen"
 # WEBPAGE_END="http://www.louvainlinux.be/statistiques-install-party-q2/"
 TRUETYPEPATH="/usr/share/fonts/truetype/"
 ROOT_UID=0
@@ -260,6 +262,7 @@ WORD45=">> Reset: \"Défilement de la souris à deux doigts\""
 WORD46="Désactiver les propositions d'achat dans le dash Unity"
 WORD47=">> Reset: \"Désactiver les propositions d'achat dans le dash Unity\""
 WORD48="Compiz/Unity: 2x2 viewports (4 bureaux)"
+WORD49="Télécharger un manuel d'utilisation en PDF sur le bureau"
 
 # For additionnal PPA, do not enable it if repo is used (already in sources.list)
 test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
@@ -268,7 +271,7 @@ test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD41BIS" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD41BIS" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48" TRUE "$WORD49"`
 
 if [ $? -eq 0 ];
 then
@@ -366,6 +369,12 @@ then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/Default/plugins/core/ hsize 2
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ vsize 2
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ vsize 2
+		elif [ "$choicee" = "$WORD49" ];
+			then
+			XDG_DESKTOP_DIR=`grep XDG_DESKTOP_DIR /home/$ON_USER/.config/user-dirs.dirs | cut -d/ -f2 | cut -d\" -f1`
+			test -z "$XDG_DESKTOP_DIR" && XDG_DESKTOP_DIR="Bureau"
+			wget -c $MANUAL_FR -O /home/$ON_USER/$XDG_DESKTOP_DIR/Ubuntu-Manuel.pdf
+			chown $ON_USER:$ON_USER /home/$ON_USER/$XDG_DESKTOP_DIR/Ubuntu-Manuel.pdf
 		fi
 	done
 	sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings-data-convert
@@ -573,10 +582,6 @@ then
 			sudo apt-get purge -y --force-yes $packageToRemove || (bPostInstFailed=1 && echo "ERROR purge: $packageToRemove")
 		fi
 	fi
-
-	# Download manual ## TODO: take latest version + download from the local mirror
-	wget https://ubuntu-manual.org//download/13.10/fr/screen -O /home/$ON_USER/Bureau/Manuel.pdf
-	chown $ON_USER:$ON_USER /home/$ON_USER/Bureau/Manuel.pdf
 
 	if [ "$PEPPER" = "1" ]; then
 		sudo update-pepperflashplugin-nonfree --install
