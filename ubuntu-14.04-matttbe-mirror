@@ -326,6 +326,8 @@ then
 			sudo apt-get update
 		elif [ "$choicee" = "$WORD39" ]; # mirror
 			then
+			echo "Check mirror (again)"
+			wget $MIRROR_ADDR -O /dev/null > /dev/null 2>&1 && echo "Add mirror" || continue ## recheck if the mirror is available
 			OurMirror "up"
 			apt-get update
 			MIRROR="yes"
