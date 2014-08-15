@@ -270,7 +270,7 @@ choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--list --column="$WORD10" --column="$WORD11" \
 				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD41BIS" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48"`
 
-if [ 0 -eq 0 ]; ## it seems there is a bug with the default version of precise... no matter, it's just that no warning is printed
+if [ $? -eq 0 ];
 then
 	IFS="|"
 	for choicee in $choicess
