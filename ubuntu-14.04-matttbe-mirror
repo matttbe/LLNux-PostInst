@@ -62,7 +62,7 @@ DISTRIBNUM2=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. 
 
 # warning ##################### MIRROR
 if test "$DISTRIB" = "trusty"; then
-	MIRROR_GOOD_DISTRIB=TRUE
+	`wget $MIRROR_ADDR -O /dev/null > /dev/null 2>&1` && MIRROR_GOOD_DISTRIB=TRUE || MIRROR_GOOD_DISTRIB=FALSE
 else
 	echo "WARNING: This script has been made for Ubuntu Trusty 14.04! "
 	/usr/bin/zenity --warning --title="WARNING" --text="You are not using Ubuntu 14.04 Trusty Thar"
@@ -261,24 +261,14 @@ WORD46="Désactiver les propositions d'achat dans le dash Unity"
 WORD47=">> Reset: \"Désactiver les propositions d'achat dans le dash Unity\""
 WORD48="Compiz/Unity: 2x2 viewports (4 bureaux)"
 
-
-function test_mirror () {
-	wget $MIRROR_ADDR -O /dev/null > /dev/null 2>&1
-	if [ $? -eq 0 ]; then
-		echo "TRUE"
-	else
-		echo "FALSE"
-	fi
-}
-if [ "$DISTRIB" = "precise" ]; then
-	WITH_MIRROR=`test_mirror`
-fi
+# For additionnal PPA, do not enable it if repo is used (already in sources.list)
+test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
 
 #gui 1
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD14" FALSE "$WORD15" FALSE "$WORD16" FALSE "$WORD17" FALSE "$WORD18" FALSE "$WORD19" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" TRUE "$WORD30" FALSE "$WORD31" FALSE "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD41BIS" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD41BIS" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48"`
 
 if [ 0 -eq 0 ]; ## it seems there is a bug with the default version of precise... no matter, it's just that no warning is printed
 then
