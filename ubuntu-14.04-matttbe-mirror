@@ -36,6 +36,18 @@ TRUETYPEPATH="/usr/share/fonts/truetype/"
 ROOT_UID=0
 DIR=$(pwd)
 
+# needs to be run with sudo
+if [ "$UID" -ne "$ROOT_UID" ];
+	then
+	echo ""
+	echo "Vous devez lancer ce script avec les droits de l'administrateur."
+	echo ""
+	echo "Tentative de relancement."
+	echo "Merci d'entrer votre mot de passe ci-dessous (les caractères tapés seront invisibles, il n'y aura pas d'astérisque pour des raisons de sécurité)"
+	echo ""
+	sudo "./`basename $0`"
+	exit
+fi
 
 #running gconf-tool2/dconf with "sudo" fails to set the options for the current user so this tweak makes it possible to run sudo for gconf-tool2 and change the setting for the current user, not the root user
 ON_USER=$(echo ~ | awk -F'/' '{ print $1 $2 $3 }' | sed 's/home//g')
@@ -67,19 +79,6 @@ elif [ "x86_64" = `uname -m` ]; then
 else
 	/usr/bin/zenity --warning --title="Architecture not supported" --text="Your architecture is not supported"
 	echo You are not using `cat /etc/issue.net` 32 or 64bits, exiting
-	exit
-fi
-
-# needs to be run with sudo
-if [ "$UID" -ne "$ROOT_UID" ];
-	then
-	echo ""
-	echo "Vous devez lancer ce script avec les droits de l'administrateur."
-	echo ""
-	echo "Tentative de relancement."
-	echo "Merci d'entrer votre mot de passe ci-dessous (les caractères tapés seront invisibles, il n'y aura pas d'astérisque pour des raisons de sécurité)"
-	echo ""
-	sudo "./`basename $0`"
 	exit
 fi
 
