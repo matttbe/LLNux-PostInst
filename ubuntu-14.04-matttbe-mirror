@@ -366,8 +366,8 @@ then
 		elif [ "$choicee" = "$WORD48" ];
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/Default/plugins/core/ hsize 2
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/Default/plugins/core/ hsize 2
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ vsize 2
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/Default/plugins/core/ vsize 2
+			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ hsize 2
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ vsize 2
 		elif [ "$choicee" = "$WORD49" ];
 			then
