@@ -64,7 +64,8 @@ DISTRIBNUM2=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. 
 
 # warning ##################### MIRROR
 if test "$DISTRIB" = "trusty"; then
-	`wget $MIRROR_ADDR -O /dev/null > /dev/null 2>&1` && MIRROR_GOOD_DISTRIB=TRUE || MIRROR_GOOD_DISTRIB=FALSE
+	echo "Check mirror addr ($MIRROR_ADDR)"
+	`wget -q --no-check-certificate --timeout=5 --tries=2 $MIRROR_ADDR -O /dev/null > /dev/null 2>&1` && MIRROR_GOOD_DISTRIB=TRUE || MIRROR_GOOD_DISTRIB=FALSE
 else
 	echo "WARNING: This script has been made for Ubuntu Trusty 14.04! "
 	/usr/bin/zenity --warning --title="WARNING" --text="You are not using Ubuntu 14.04 Trusty Thar"
@@ -153,7 +154,6 @@ function addallkey()
 	else
 		#addkey
 		wget -q http://repository.glx-dock.org/cairo-dock.gpg -O- | sudo apt-key add -
-		# wget -q http://fr.packages.medibuntu.org/medibuntu-key.gpg -O- | sudo apt-key add -
 		wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 		addppakey
 	fi
@@ -330,7 +330,7 @@ then
 		elif [ "$choicee" = "$WORD39" ]; # mirror
 			then
 			echo "Check mirror (again)"
-			wget $MIRROR_ADDR -O /dev/null > /dev/null 2>&1 && echo "Add mirror" || continue ## recheck if the mirror is available
+			wget -q --no-check-certificate --timeout=5 --tries=2 $MIRROR_ADDR -O /dev/null > /dev/null 2>&1 && echo "Add mirror" || continue ## recheck if the mirror is available
 			OurMirror "up"
 			apt-get update
 			MIRROR="yes"
@@ -338,7 +338,7 @@ then
 			then
 			sudo -u $ON_USER mkdir /home/$ON_USER/Jeux
 			cd /home/$ON_USER/Jeux
-			sudo -u $ON_USER wget http://www.lastos.org/team/LastOS/mgp/release/lastos-mgp-1.0.0-11.tar.gz
+			sudo -u $ON_USER wget -c -q --no-check-certificate --timeout=5 --tries=2 http://www.lastos.org/team/LastOS/mgp/release/lastos-mgp-1.0.0-11.tar.gz
 			sudo -u $ON_USER tar xzf lastos-mgp-1.0.0-11.tar.gz
 			sudo -u sed -i "/desktop/d" install # pas besoin de son raccourcis qui se place sur un dossier inexistant sans les permissions.
 			sudo ./install
@@ -373,7 +373,7 @@ then
 			then
 			XDG_DESKTOP_DIR=`grep XDG_DESKTOP_DIR /home/$ON_USER/.config/user-dirs.dirs | cut -d/ -f2 | cut -d\" -f1`
 			test -z "$XDG_DESKTOP_DIR" && XDG_DESKTOP_DIR="Bureau"
-			wget -c $MANUAL_FR -O /home/$ON_USER/$XDG_DESKTOP_DIR/Ubuntu-Manuel.pdf
+			wget -c -q --no-check-certificate --timeout=5 --tries=2 $MANUAL_FR -O /home/$ON_USER/$XDG_DESKTOP_DIR/Ubuntu-Manuel.pdf
 			chown $ON_USER:$ON_USER /home/$ON_USER/$XDG_DESKTOP_DIR/Ubuntu-Manuel.pdf
 		fi
 	done
