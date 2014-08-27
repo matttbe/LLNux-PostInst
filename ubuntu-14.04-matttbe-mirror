@@ -256,13 +256,15 @@ WORD34="Ajouter des dépôts additionnels (PPA de Cairo-Dock, Matttbe, LaTeXila 
 WORD39="Ajouter notre miroir (32 and 64bits only)"
 WORD40="Télécharger un centre de logiciels dédié aux jeux"
 WORD41="Défilement des messages du terminal sans limite"
-WORD41BIS=">> Reset: \"Défilement des messages du terminal sans limite\""
+WORD42=">> Reset: \"Défilement des messages du terminal sans limite\""
 WORD44="Défilement de la souris à deux doigts"
 WORD45=">> Reset: \"Défilement de la souris à deux doigts\""
 WORD46="Désactiver les propositions d'achat dans le dash Unity"
 WORD47=">> Reset: \"Désactiver les propositions d'achat dans le dash Unity\""
 WORD48="Compiz/Unity: 2x2 viewports (4 bureaux)"
 WORD49="Télécharger un manuel d'utilisation en PDF sur le bureau"
+WORD50="Désactiver la session invitée (guest session)"
+WORD51=">> Reset: \"Désactiver la session invitée (guest session)\""
 
 # For additionnal PPA, do not enable it if repo is used (already in sources.list)
 test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
@@ -271,7 +273,7 @@ test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD41BIS" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48" TRUE "$WORD49"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD42" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48" TRUE "$WORD49" FALSE "$WORD50" FALSE "$WORD51"`
 
 if [ $? -eq 0 ];
 then
@@ -346,7 +348,7 @@ then
 		elif [ "$choicee" = "$WORD41" ]; # terminal: scrollback unlimited
 			then # gnome-terminal is still using GConf
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool true
-		elif [ "$choicee" = "$WORD41BIS" ];
+		elif [ "$choicee" = "$WORD42" ];
 			then
 			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool false # (défilement)
 		elif [ "$choicee" = "$WORD44" ]; # scroll with two fingers
@@ -375,6 +377,14 @@ then
 			test -z "$XDG_DESKTOP_DIR" && XDG_DESKTOP_DIR="Bureau"
 			wget -c -q --no-check-certificate --timeout=5 --tries=2 $MANUAL_FR -O /home/$ON_USER/$XDG_DESKTOP_DIR/Ubuntu-Manuel.pdf
 			chown $ON_USER:$ON_USER /home/$ON_USER/$XDG_DESKTOP_DIR/Ubuntu-Manuel.pdf
+		elif [ "$choicee" = "$WORD50" ];
+			then
+			sudo mkdir -p /etc/lightdm/lightdm.conf.d
+			echo "[SeatDefaults]" > /etc/lightdm/lightdm.conf.d/50-matttbe-disable-guest.conf
+			echo "allow-guest=false" >> /etc/lightdm/lightdm.conf.d/50-matttbe-disable-guest.conf
+		elif [ "$choicee" = "$WORD51" ];
+			then
+			rm -f /etc/lightdm/lightdm.conf.d/50-matttbe-disable-guest.conf
 		fi
 	done
 	sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings-data-convert
