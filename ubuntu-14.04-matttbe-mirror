@@ -52,11 +52,18 @@ if [ "$UID" -ne "$ROOT_UID" ];
 fi
 
 #running gconf-tool2/dconf with "sudo" fails to set the options for the current user so this tweak makes it possible to run sudo for gconf-tool2 and change the setting for the current user, not the root user
-ON_USER=$(echo ~ | awk -F'/' '{ print $1 $2 $3 }' | sed 's/home//g')
+ON_USER=$(users | awk '{print $1}') # first: the one who has launched X
 export $(grep -v "^#" /home/$ON_USER/.dbus/session-bus/`cat /var/lib/dbus/machine-id`-0)
 if sudo -u $ON_USER test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
 	eval `sudo -u $ON_USER dbus-launch --sh-syntax --exit-with-session`
 fi
+
+#Note: Ubuntu 14.04 Trusty: it's no longer possible to launch gsettings/gconftool with that... #TODO: find a better fix...
+CMD_FOR_USER="$DIR/$ON_USER.sh"
+echo '#!/bin/bash
+[ "$UID" -eq "0" ] && echo "Ne pas lancer avec ROOT" && exit 1' > "$CMD_FOR_USER"
+chmod +x "$CMD_FOR_USER"
+chown $ON_USER:$ON_USER "$CMD_FOR_USER"
 
 DISTRIB=$(grep -e DISTRIB_CODENAME /etc/lsb-release | cut -d= -f2)
 DISTRIBNUM=$(grep -e DISTRIB_RELEASE= /etc/lsb-release | cut -d= -f2 | cut -d. -f1)
@@ -283,32 +290,26 @@ then
 	do
 		if [ "$choicee" = "$WORD12" ]; # WM: button: layout
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --type string --set /apps/metacity/general/button_layout "menu:minimize,maximize,close"
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.wm.preferences "menu:minimize,maximize,close"
+			echo 'gconftool-2 --type string --set /apps/metacity/general/button_layout "menu:minimize,maximize,close"' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.gnome.desktop.wm.preferences "menu:minimize,maximize,close"' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD13" ];
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --type string --set /apps/metacity/general/button_layout "close,minimize,maximize:"
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.wm.preferences "close,minimize,maximize:"
+			echo 'gconftool-2 --type string --set /apps/metacity/general/button_layout "close,minimize,maximize:"' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.gnome.desktop.wm.preferences "close,minimize,maximize:"' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD16" ]; # volumes: icons in desktop
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/nautilus/desktop/volumes_visible false
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.nautilus.desktop volumes-visible false
+			echo 'gsettings set org.gnome.nautilus.desktop volumes-visible false' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD17" ];
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool -s --type bool /apps/nautilus/desktop/volumes_visible true
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.nautilus.desktop volumes-visible true
+			echo 'gsettings set org.gnome.nautilus.desktop volumes-visible true' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD20" ]; # buttons/menus have icons
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/buttons_have_icons --type bool true
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/menus_have_icons --type bool true
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface buttons-have-icons true
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface menus-have-icons true
+			echo 'gsettings set org.gnome.desktop.interface buttons-have-icons true' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.gnome.desktop.interface menus-have-icons true' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD21" ];
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/buttons_have_icons --type bool false
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 --set /desktop/gnome/interface/menus_have_icons --type bool false
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface buttons-have-icons false
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.desktop.interface menus-have-icons false
+			echo 'gsettings set org.gnome.desktop.interface buttons-have-icons false' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.gnome.desktop.interface menus-have-icons false' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD26" ]; # docs
 			then
 			sudo apt-get purge -y --force-yes ubuntu-docs
@@ -349,30 +350,30 @@ then
 			cd $DIR
 		elif [ "$choicee" = "$WORD41" ]; # terminal: scrollback unlimited
 			then # gnome-terminal is still using GConf
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool true
+			echo 'gconftool-2 -s /apps/gnome-terminal/profiles/Default/scrollback_unlimited --type bool true' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD42" ];
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gconftool-2 -s '/apps/gnome-terminal/profiles/Default/scrollback_unlimited' --type bool false # (défilement)
+			echo 'gconftool-2 -s /apps/gnome-terminal/profiles/Default/scrollback_unlimited --type bool false' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD44" ]; # scroll with two fingers
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad scroll-method two-finger-scrolling
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad horiz-scroll-enabled true
+			echo 'gsettings set org.gnome.settings-daemon.peripherals.touchpad scroll-method two-finger-scrolling' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.gnome.settings-daemon.peripherals.touchpad horiz-scroll-enabled true' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD45" ];
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad scroll-method edge-scrolling
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.gnome.settings-daemon.peripherals.touchpad horiz-scroll-enabled false
+			echo 'gsettings set org.gnome.settings-daemon.peripherals.touchpad scroll-method edge-scrolling' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.gnome.settings-daemon.peripherals.touchpad horiz-scroll-enabled false' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD46" ]; # disable shopping
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set com.canonical.Unity.Lenses disabled-scopes "['more_suggestions-amazon.scope', 'more_suggestions-u1ms.scope', 'more_suggestions-populartracks.scope', 'music-musicstore.scope', 'more_suggestions-ebay.scope', 'more_suggestions-ubuntushop.scope', 'more_suggestions-skimlinks.scope']"
+			echo "gsettings set com.canonical.Unity.Lenses disabled-scopes \"['more_suggestions-amazon.scope', 'more_suggestions-u1ms.scope', 'more_suggestions-populartracks.scope', 'music-musicstore.scope', 'more_suggestions-ebay.scope', 'more_suggestions-ubuntushop.scope', 'more_suggestions-skimlinks.scope']\"" >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD47" ];
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set com.canonical.Unity.Lenses disabled-scopes "[]"
+			echo 'gsettings set com.canonical.Unity.Lenses disabled-scopes "[]"' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD48" ];
 			then
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/Default/plugins/core/ hsize 2
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/Default/plugins/core/ vsize 2
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ hsize 2
-			sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ vsize 2
+			echo 'gsettings set org.compiz.core:/org/compiz/profiles/Default/plugins/core/ hsize 2' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.compiz.core:/org/compiz/profiles/Default/plugins/core/ vsize 2' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ hsize 2' >> "$CMD_FOR_USER"
+			echo 'gsettings set org.compiz.core:/org/compiz/profiles/unity/plugins/core/ vsize 2' >> "$CMD_FOR_USER"
 		elif [ "$choicee" = "$WORD49" ];
 			then
 			XDG_DESKTOP_DIR=`grep XDG_DESKTOP_DIR /home/$ON_USER/.config/user-dirs.dirs | cut -d/ -f2 | cut -d\" -f1`
@@ -389,8 +390,13 @@ then
 			rm -f /etc/lightdm/lightdm.conf.d/50-matttbe-disable-guest.conf
 		fi
 	done
-	sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings-data-convert
+	# sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings-data-convert
 	IFS=""
+	if test `wc "$CMD_FOR_USER" | awk '{print $1}'` -gt 2; then
+		echo "Lancement des commandes à exécuter depuis un TTY de l'utilisateur"
+		test -z "$COLORTERM" && COLORTERM=xterm # if COLORTERM is not set, not on GNOME
+		sudo -u $ON_USER $COLORTERM -x "$CMD_FOR_USER"
+	fi
 	echo "Fait! L'étape 2 va commencer!"
 else
 	echo cancel selected
