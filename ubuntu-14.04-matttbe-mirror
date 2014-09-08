@@ -195,21 +195,21 @@ function testKeyServer()
 ##  peut être bloqué dans un réseau universitaire)
 function AddMeApt ()
 {
-	myRepo=`echo "$1" | cut -d# -f1`
+	myRepoComm=$1
+	myRepo=`echo ${myRepoComm:0:$(expr index "$myRepoComm" \#)-2}`
 	if [ "$MIRROR" = "yes" ]; then
 		SRC_FILE="$DIR/sources_out.list"
 		grep "^$myRepo" "$SRC_FILE" > /dev/null
 		if [ $? -eq 1 ]; then
 			# to not duplicate the repository
-			echo "$myRepo" | sudo tee -a "$SRC_FILE"
+			echo "$myRepoComm" | sudo tee -a "$SRC_FILE"
 		fi
 	fi
 	SRC_FILE="/etc/apt/sources.list"
-	myRepo=`echo "$1" | cut -d# -f1`
 	grep "^$myRepo" $SRC_FILE > /dev/null
 	if [ $? -eq 1 ]; then
 		# to not duplicate the repository
-		echo "$myRepo" | sudo tee -a $SRC_FILE
+		echo "$myRepoComm" | sudo tee -a $SRC_FILE
 	fi
 }
 
