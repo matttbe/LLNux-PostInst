@@ -156,6 +156,7 @@ function addallkey()
 		wget -q http://repository.glx-dock.org/cairo-dock.gpg -O- | sudo apt-key add -
 		wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 		addppakey
+		wget -q http://download.videolan.org/pub/debian/videolan-apt.asc -O- | sudo apt-key add -
 	fi
 }
 
@@ -328,6 +329,7 @@ then
 				AddMeApt "${ARRAY[${i}]}"
 			done
 			testConnection
+			addallkey
 			sudo apt-get update
 		elif [ "$choicee" = "$WORD39" ]; # mirror
 			then
