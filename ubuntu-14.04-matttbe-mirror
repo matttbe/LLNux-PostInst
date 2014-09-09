@@ -273,6 +273,8 @@ WORD48="Compiz/Unity: 2x2 viewports (4 bureaux)"
 WORD49="Télécharger un manuel d'utilisation en PDF sur le bureau"
 WORD50="Désactiver la session invitée (guest session)"
 WORD51=">> Reset: \"Désactiver la session invitée (guest session)\""
+WORD52="À l'activation de fichiers texte exécutables, demander que faire au lieu d'ouvrir l'éditeur de texte"
+WORD53=">> Reset: \"À l'activation de fichiers texte exécutables, demander que faire au lieu d'ouvrir l'éditeur de texte\""
 
 # For additionnal PPA, do not enable it if repo is used (already in sources.list)
 test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
@@ -281,7 +283,7 @@ test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD42" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48" TRUE "$WORD49" FALSE "$WORD50" FALSE "$WORD51"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD42" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48" TRUE "$WORD49" FALSE "$WORD50" FALSE "$WORD51" TRUE "$WORD52" FALSE "$WORD53"`
 
 if [ $? -eq 0 ];
 then
@@ -388,11 +390,17 @@ then
 		elif [ "$choicee" = "$WORD51" ];
 			then
 			rm -f /etc/lightdm/lightdm.conf.d/50-matttbe-disable-guest.conf
+		elif [ "$choicee" = "$WORD52" ];
+			then
+			echo 'gsettings set org.gnome.nautilus.preferences executable-text-activation ask' >> "$CMD_FOR_USER"
+		elif [ "$choicee" = "$WORD53" ];
+			then
+			echo 'gsettings set org.gnome.nautilus.preferences executable-text-activation display' >> "$CMD_FOR_USER"
 		fi
 	done
 	# sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings-data-convert
 	IFS=""
-	if test `wc "$CMD_FOR_USER" | awk '{print $1}'` -gt 2; then
+	if test `wc "$CMD_FOR_USER" | awk '{print $1}'` -gt 2; then ## TODO: remove this workaround if we find something better to really execute gsettings/gconftool with user's DBus session.
 		echo "Lancement des commandes à exécuter depuis un TTY de l'utilisateur"
 		test -z "$COLORTERM" && COLORTERM=xterm # if COLORTERM is not set, not on GNOME
 		sudo -u $ON_USER $COLORTERM -x "$CMD_FOR_USER"
