@@ -410,8 +410,10 @@ then
 		MSG_FOR_USER="Merci de lancer le script suivant depuis un nouveau terminal de l'utilisateur $ON_USER :\n\t$CMD_FOR_USER"
 		echo -e "\n$MSG_FOR_USER\n"
 		zenity --info --text="$MSG_FOR_USER" --title="Étape manuelle" &
+		ZENITY_PID=$!
 		echo -e "\n\tAttente de l'exécution du script: le script continuera une fois que ce script sera exécuté"
 		while test ! -f $CMD_FOR_USER.launched; do sleep 1; done
+		kill -15 $ZENITY_PID 2> /dev/null
 	fi
 	echo "Fait! L'étape 2 va commencer!"
 else
