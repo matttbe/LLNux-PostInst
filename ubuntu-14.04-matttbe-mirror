@@ -554,7 +554,11 @@ then
 
 	# Upgrade
 	echo -e "\n\t ====== Dist Upgrade ======\n"
-	sudo apt-get dist-upgrade -y --force-yes || (bPostInstFailed=1 && echo "ERROR")
+	sudo apt-get dist-upgrade -y --force-yes || (bPostInstFailed=1 && echo -e "\n\n\t=== ERROR UPGRADE ===\n\n")
+	if [ "$bPostInstFailed" = "1" ]; then # Try to fix the error: maybe something missing or dpkg --configure -a? or display an error
+		sudo apt-get install -f -y --force-yes || sudo dpkg --configure -a
+		sudo apt-get install -f -y --force-yes || (zenity --error --text="Une erreur est survenue, merci de la fixer et relancer le script" && exit 1)
+	fi
 
 	# Script vérification
 	echo -e "\n\t ====== Packages verification and installation! =======\n"
