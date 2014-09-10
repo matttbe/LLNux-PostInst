@@ -36,6 +36,7 @@ MANUAL_FR="https://ubuntu-manual.org//download/13.10/fr/screen"
 # WEBPAGE_END="http://www.louvainlinux.be/statistiques-install-party-q2/"
 TRUETYPEPATH="/usr/share/fonts/truetype/"
 ROOT_UID=0
+cd `dirname "$0"` # ensure that this script is launched from the right dir
 DIR=$(pwd)
 
 # needs to be run with sudo
