@@ -52,12 +52,11 @@ if [ "$UID" -ne "$ROOT_UID" ];
 	exit
 fi
 
-#running gconf-tool2/dconf with "sudo" fails to set the options for the current user so this tweak makes it possible to run sudo for gconf-tool2 and change the setting for the current user, not the root user
 ON_USER=$(users | awk '{print $1}') # first: the one who has launched X
-export $(grep -v "^#" /home/$ON_USER/.dbus/session-bus/`cat /var/lib/dbus/machine-id`-0)
-if sudo -u $ON_USER test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
-	eval `sudo -u $ON_USER dbus-launch --sh-syntax --exit-with-session`
-fi
+
+#running gconf-tool2/dconf with "sudo" fails to set the options for the current user so this tweak makes it possible to run sudo for gconf-tool2 and change the setting for the current user, not the root user
+# export $(grep -v "^#" /home/$ON_USER/.dbus/session-bus/`cat /var/lib/dbus/machine-id`-0)
+# sudo -u $ON_USER test -z "$DBUS_SESSION_BUS_ADDRESS" && eval `sudo -u $ON_USER dbus-launch --sh-syntax --exit-with-session`
 
 #Note: Ubuntu 14.04 Trusty: it's no longer possible to launch gsettings/gconftool with that... #TODO: find a better fix...
 CMD_FOR_USER="$DIR/$ON_USER.sh"
