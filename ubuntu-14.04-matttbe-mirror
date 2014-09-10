@@ -593,7 +593,7 @@ then
 	sudo sh "$DIR/matttbe/install_packages.sh" || (bPostInstFailed=1 && echo -e "\n\n\t=== ERROR INSTALL ===\n\n")
 
 
-	sudo apt-get install -f -y || (bPostInstFailed=1 && echo "ERROR: install empty")
+	sudo apt-get install -f -y || (bPostInstFailed=1 && echo -e "\n\n\t=== ERROR: install empty ===\n\n")
 
 
 	##################
@@ -612,7 +612,7 @@ then
 			fi
 		done
 		if [ "$packageToRemove" != "" ]; then
-			sudo apt-get purge -y --force-yes $packageToRemove || (bPostInstFailed=1 && echo "ERROR purge: $packageToRemove")
+			sudo apt-get purge -y --force-yes $packageToRemove || (bPostInstFailed=1 && echo -e "\n\n\t=== ERROR purge: $packageToRemove ===\n\n")
 		fi
 	fi
 
@@ -631,9 +631,9 @@ then
 	## CLEAN ##
 	###########
 
-	sudo apt-get clean || (bPostInstFailed=1 && echo "ERROR clean")
-	sudo apt-get autoclean || (bPostInstFailed=1 && echo "ERROR autoclean")
-	sudo apt-get autoremove -y || (bPostInstFailed=1 && echo "ERROR autoremove")
+	sudo apt-get clean || (bPostInstFailed=1 && echo -e "\n\n\t=== ERROR clean ===\n\n")
+	sudo apt-get autoclean || (bPostInstFailed=1 && echo -e "\n\n\t=== ERROR autoclean ===\n\n")
+	sudo apt-get autoremove -y || (bPostInstFailed=1 && echo -e "\n\n\t=== ERROR autoremove ===\n\n")
 	if [ "$MIRROR" = "yes" ]; then
 		OurMirror "down"
 		echo "Utilisation des serveurs externes"
