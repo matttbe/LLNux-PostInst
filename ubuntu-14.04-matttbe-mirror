@@ -559,7 +559,7 @@ then
 	# Script vérification
 	echo -e "\n\t ====== Packages verification and installation! =======\n"
 
-	mkdir -p /tmp/matttbe/
+	mkdir -p "$DIR/matttbe"
 	echo -e '# on ajoute que les paquets qui manquent
 	echo "\t on ajoute que les paquets qui manquent"
 	unset $paquetsPresent
@@ -585,13 +585,12 @@ then
 	done
 	## Une fois la liste vérifiée, on écrase le fichier avec la commande minimale pour la suite
 	echo "sudo apt-get install -y --force-yes -m $paquetsOK || exit 1
-	# Paquets mauvais: $paquetsNOTok" > /tmp/matttbe/install_packages.sh
-	#sudo apt-get install -y --force-yes -m $paquetsOK' > /tmp/matttbe/check_packages.sh
-	chmod +x /tmp/matttbe/check_packages.sh
-	# sudo xterm -e "sudo sh /home/$ON_USER/install_paquets.sh"	# check packages
-	sudo sh /tmp/matttbe/check_packages.sh # check packages
-	chmod +x /tmp/matttbe/install_packages.sh
-	sudo sh /tmp/matttbe/install_packages.sh || (bPostInstFailed=1 && echo "ERROR INSTALL" && sudo cp /tmp/*.sh .)
+	# Paquets mauvais: $paquetsNOTok" > "'$DIR'/matttbe/install_packages.sh"
+	#sudo apt-get install -y --force-yes -m $paquetsOK' > "$DIR/matttbe/check_packages.sh"
+	chmod +x "$DIR/matttbe/check_packages.sh"
+	sudo sh "$DIR/matttbe/check_packages.sh" # check packages
+	chmod +x "$DIR/matttbe/install_packages.sh"
+	sudo sh "$DIR/matttbe/install_packages.sh" || (bPostInstFailed=1 && echo -e "\n\n\t=== ERROR INSTALL ===\n\n")
 
 
 	sudo apt-get install -f -y || (bPostInstFailed=1 && echo "ERROR: install empty")
