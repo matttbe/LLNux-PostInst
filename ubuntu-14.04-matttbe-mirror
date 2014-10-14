@@ -277,6 +277,8 @@ WORD52="À l'activation de fichiers texte exécutables, demander que faire au li
 WORD53=">> Reset: \"$WORD52\""
 WORD54="Barre de progression pour APT-GET (installation de programmes depuis le terminal)"
 WORD55=">> Reset: \"$WORD54\""
+WORD56="Ajouter des couleurs pour les info du terminal (PS)"
+WORD57=">> Reset: \"$WORD56\""
 
 # For additionnal PPA, do not enable it if repo is used (already in sources.list)
 test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
@@ -285,7 +287,7 @@ test "$MIRROR_GOOD_DISTRIB" = "TRUE" && PPAS=FALSE || PPAS=TRUE
 choicess=`/usr/bin/zenity --title="$WORD8" --width=600 --height=600 \
 				--text="$WORD9" \
 				--list --column="$WORD10" --column="$WORD11" \
-				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD42" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48" TRUE "$WORD49" FALSE "$WORD50" FALSE "$WORD51" TRUE "$WORD52" FALSE "$WORD53" TRUE "$WORD54" FALSE "$WORD55"`
+				--checklist FALSE "$WORD12" FALSE "$WORD13" FALSE "$WORD16" FALSE "$WORD17" TRUE "$WORD20" FALSE "$WORD21" FALSE "$WORD26" FALSE "$WORD27" $PPAS "$WORD34" $MIRROR_GOOD_DISTRIB "$WORD39" FALSE "$WORD40" TRUE "$WORD41" FALSE "$WORD42" TRUE "$WORD44" FALSE "$WORD45" TRUE "$WORD46" FALSE "$WORD47" TRUE "$WORD48" TRUE "$WORD49" FALSE "$WORD50" FALSE "$WORD51" TRUE "$WORD52" FALSE "$WORD53" TRUE "$WORD54" FALSE "$WORD55" TRUE "$WORD56" FALSE "$WORD57"`
 
 if [ $? -eq 0 ];
 then
@@ -404,6 +406,14 @@ then
 		elif [ "$choicee" = "$WORD55" ];
 			then
 			rm -f /etc/apt/apt.conf.d/99progressbar
+		elif [ "$choicee" = "$WORD56" ];
+			then
+			sudo -u $ON_USER sed -i "s/^#force_color_prompt=yes/force_color_prompt=yes/g" /home/$ON_USER/.bashrc
+			source /home/$ON_USER/.bashrc
+		elif [ "$choicee" = "$WORD57" ];
+			then
+			sudo -u $ON_USER sed -i "s/^force_color_prompt=yes/#force_color_prompt=yes/g" /home/$ON_USER/.bashrc
+			source /home/$ON_USER/.bashrc
 		fi
 	done
 	# sudo -u $ON_USER "DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS gsettings-data-convert
